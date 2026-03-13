@@ -11,11 +11,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **SCORE-01**: App encodes the existing uplift points test rules (85 max, 40 min to pass, A1 mandatory 3 points)
 - [ ] **SCORE-02**: App encodes the proposed uplift points test rules (70 max, 20 min for QNZPE <$100m, 30 min for QNZPE >=$100m)
-- [ ] **SCORE-03**: User enters raw production data (percentages, dollar amounts, personnel counts) and app auto-calculates points for both systems
-- [ ] **SCORE-04**: Shared input fields feed both scoring systems where criteria overlap
+- [x] **SCORE-03**: User enters raw production data (percentages, dollar amounts, personnel counts) and app auto-calculates points for both systems
+- [x] **SCORE-04**: Shared input fields feed both scoring systems where criteria overlap
 - [ ] **SCORE-05**: App displays pass/fail verdict per test per project
-- [ ] **SCORE-06**: App displays score breakdown by section with per-criterion detail
-- [ ] **SCORE-07**: Mandatory criteria (A1 sustainability in existing test) are visually highlighted
+- [x] **SCORE-06**: App displays score breakdown by section with per-criterion detail
+- [x] **SCORE-07**: Mandatory criteria (A1 sustainability in existing test) are visually highlighted
 <!-- SCORE-03, SCORE-04, SCORE-06, SCORE-07 type contracts defined in Plan 01 (ProjectInputs, ScoringResult, CriterionResult) -->
 
 ### Projects & Data
@@ -75,11 +75,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SCORE-01 | Phase 1 | Pending |
 | SCORE-02 | Phase 1 | Pending |
-| SCORE-03 | Phase 1 | Pending |
-| SCORE-04 | Phase 1 | Pending |
+| SCORE-03 | Phase 1 | Complete |
+| SCORE-04 | Phase 1 | Complete |
 | SCORE-05 | Phase 1 | Pending |
-| SCORE-06 | Phase 1 | Pending |
-| SCORE-07 | Phase 1 | Pending |
+| SCORE-06 | Phase 1 | Complete |
+| SCORE-07 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Pending |
 | PROJ-01 | Phase 2 | Pending |
 | PROJ-02 | Phase 2 | Pending |

@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The A1 sustainability criterion in the existing test is flagged as mandatory in the returned result structure
   4. Shared input fields (QNZPE, crew %, cast %) are consumed by both scoring functions from a single `ProjectInputs` type — no duplication
   5. The Zustand store initialises with a `schemaVersion` field and the app can boot without crashing on a fresh localStorage
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 - [ ] 01-01-PLAN.md — Project scaffold, types, helpers, scoring spec, and human verification
@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scoring Engine | 0/4 | In progress (Plan 01 checkpoint pending) | - |
+| 1. Scoring Engine | 1/4 | In Progress|  |
 | 2. Data Layer | 0/TBD | Not started | - |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
