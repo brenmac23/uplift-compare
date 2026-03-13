@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-data-layer 02-01-PLAN.md
-last_updated: "2026-03-13T02:32:47.960Z"
-last_activity: 2026-03-13 — Plan 01 fully complete including human-verified SCORING_SPEC.md
+stopped_at: Completed 02-data-layer 02-02-PLAN.md
+last_updated: "2026-03-13T02:42:31.629Z"
+last_activity: 2026-03-13 — Phase 2 Plan 01 complete — Project entity, CRUD, schema migration, productionType added
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 25
+  completed_plans: 6
+  percent: 71
 ---
 
 # Project State
@@ -58,6 +58,7 @@ Progress: [███████░░░] 71%
 | Phase 01-scoring-engine P03 | 5 | 2 tasks | 2 files |
 | Phase 01-scoring-engine P04 | 3 | 2 tasks | 4 files |
 | Phase 02-data-layer P01 | 3 min | 1 tasks | 4 files |
+| Phase 02-data-layer P02 | 7 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 01-04]: Barrel export includes SectionResult type for Phase 3 section-level rendering
 - [Phase 02-01]: Use setState in beforeEach to reset Zustand in-memory state — clearStorage+rehydrate alone does not reset in-memory state between tests
 - [Phase 02-01]: seedProjects.ts is a stub (empty array) to unblock TypeScript compilation — Plan 02 replaces with 50 real projects
+- [Phase 02-data-layer]: beforeEach in useAppStore tests resets to empty array (not SEED_PROJECTS) — 50 real seeds break index-based assertions written against empty stub
+- [Phase 02-data-layer]: Borderline-fail at 39pts included to maximise comparison value near 40pt pass threshold
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T02:32:47.958Z
-Stopped at: Completed 02-data-layer 02-01-PLAN.md
+Last session: 2026-03-13T02:42:31.621Z
+Stopped at: Completed 02-data-layer 02-02-PLAN.md
 Resume file: None

@@ -20,9 +20,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Projects & Data
 
-- [ ] **PROJ-01**: App ships with 50 seeded fictional projects (mix of films and TV, fake titles, no NZ references or real franchises)
-- [ ] **PROJ-02**: Seed data distribution: half pass existing test, half fail; half over $100m QNZPE, all over $20m QNZPE
-- [ ] **PROJ-03**: Seed data follows realism rules (all have A1, none have C3/C10, B1 rare, big budget = low qualifying persons, Section E rare/big budget only, most reach 80% on C2 especially smaller budgets)
+- [x] **PROJ-01**: App ships with 50 seeded fictional projects (mix of films and TV, fake titles, no NZ references or real franchises)
+- [x] **PROJ-02**: Seed data distribution: half pass existing test, half fail; half over $100m QNZPE, all over $20m QNZPE
+- [x] **PROJ-03**: Seed data follows realism rules (all have A1, none have C3/C10, B1 rare, big budget = low qualifying persons, Section E rare/big budget only, most reach 80% on C2 especially smaller budgets)
 - [x] **PROJ-04**: User can create new projects via input form
 - [ ] **PROJ-05**: Project detail screen shows side-by-side comparison with dropdown to switch between projects
 - [ ] **PROJ-06**: Summary screen shows all projects with descriptions and pass/fail status for each test
@@ -81,9 +81,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCORE-06 | Phase 1 | Complete |
 | SCORE-07 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
-| PROJ-01 | Phase 2 | Pending |
-| PROJ-02 | Phase 2 | Pending |
-| PROJ-03 | Phase 2 | Pending |
+| PROJ-01 | Phase 2 | Complete |
+| PROJ-02 | Phase 2 | Complete |
+| PROJ-03 | Phase 2 | Complete |
 | PROJ-04 | Phase 2 | Complete |
 | INFRA-01 | Phase 2 | Pending |
 | PROJ-05 | Phase 3 | Pending |

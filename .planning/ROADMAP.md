@@ -46,7 +46,7 @@ Plans:
   2. Of the 50 seed projects: approximately half pass the existing test, half fail; half have QNZPE >=$100m; all have QNZPE >=$20m
   3. A user can create a new project via the input form and it persists across a browser refresh
   4. The app deploys to Netlify and loads correctly with all 50 projects intact
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 - [ ] 02-01-PLAN.md — Store expansion: Project entity, CRUD actions, productionType field, schema migration v1->v2
@@ -82,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
-| 2. Data Layer | 1/3 | In Progress|  |
+| 2. Data Layer | 2/3 | In Progress|  |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
