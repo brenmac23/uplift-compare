@@ -39,7 +39,7 @@ export function CreateProjectForm() {
     const inputs: ProjectInputs = {
       projectName: form.projectName.trim(),
       productionType: form.productionType,
-      qnzpe: Number(form.qnzpe),
+      qnzpe: Number(form.qnzpe) * 1_000_000,
 
       // All scoring fields default to zero/false/none
       hasSustainabilityPlan: false,
@@ -107,7 +107,7 @@ export function CreateProjectForm() {
       </div>
 
       <div style={{ marginTop: '0.5rem' }}>
-        <label htmlFor="qnzpe">QNZPE (NZD)</label>
+        <label htmlFor="qnzpe">QNZPE ($M NZD)</label>
         <br />
         <input
           id="qnzpe"
