@@ -63,7 +63,13 @@ Plans:
   3. The summary screen shows aggregate statistics (e.g. "32/50 pass existing test, 41/50 pass proposed test")
   4. Pass/fail indicators use both colour and text label — a user without colour vision can distinguish pass from fail
   5. Each scoring criterion has a tooltip explaining the rule in plain English, and score sections can be collapsed and expanded
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Foundation: Tailwind v4, shadcn/ui, theme, NavBar, PassFailBadge, routing
+- [ ] 03-02-PLAN.md — Summary screen: project table, filters, aggregate stat cards
+- [ ] 03-03-PLAN.md — Detail screen: three-column live scoring, tooltips, collapsible sections
+- [ ] 03-04-PLAN.md — Actions: create project modal, JSON import, visual verification
 
 ### Phase 4: Export and Polish
 **Goal**: Users can export project data to Excel and the app is visually complete
@@ -83,5 +89,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
 | 2. Data Layer | 3/3 | Complete   | 2026-03-13 |
-| 3. Core UI | 0/TBD | Not started | - |
+| 3. Core UI | 0/4 | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
