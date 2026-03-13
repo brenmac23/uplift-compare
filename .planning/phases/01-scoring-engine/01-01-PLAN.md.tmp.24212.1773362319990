@@ -1,0 +1,271 @@
+---
+phase: 01-scoring-engine
+plan: 01
+type: execute
+wave: 1
+depends_on: []
+files_modified:
+  - package.json
+  - vite.config.ts
+  - vitest.config.ts
+  - tsconfig.json
+  - tsconfig.app.json
+  - tsconfig.node.json
+  - src/main.tsx
+  - src/App.tsx
+  - src/scoring/types.ts
+  - src/scoring/helpers.ts
+  - src/scoring/spec.ts
+  - src/scoring/__tests__/helpers.test.ts
+  - .planning/phases/01-scoring-engine/SCORING_SPEC.md
+autonomous: false
+requirements:
+  - SCORE-03
+  - SCORE-04
+  - SCORE-06
+  - SCORE-07
+
+must_haves:
+  truths:
+    - "ProjectInputs type exists and captures all raw production data fields needed by both scoring systems"
+    - "ScoringResult and CriterionResult types carry section detail, N/A support, and mandatory flags"
+    - "scoreHighestTier helper returns correct points for highest qualifying tier"
+    - "scoreCountCapped helper returns correct capped count-based points"
+    - "SCORING_SPEC.md contains every criterion from both tests with exact numeric rules validated against source documents"
+  artifacts:
+    - path: "src/scoring/types.ts"
+      provides: "ProjectInputs, ScoringResult, CriterionResult type definitions"
+      exports: ["ProjectInputs", "ScoringResult", "CriterionResult", "SectionResult"]
+    - path: "src/scoring/helpers.ts"
+      provides: "Shared scoring helper functions"
+      exports: ["scoreHighestTier", "scoreCountCapped"]
+    - path: "src/scoring/spec.ts"
+      provides: "Numeric rule constants for both scoring systems"
+      exports: ["EXISTING_SPEC", "PROPOSED_SPEC"]
+    - path: "src/scoring/__tests__/helpers.test.ts"
+      provides: "Unit tests for helper functions"
+    - path: ".planning/phases/01-scoring-engine/SCORING_SPEC.md"
+      provides: "Human-readable scoring specification validated against .docx source documents"
+      contains: "Section A"
+  key_links:
+    - from: "src/scoring/helpers.ts"
+      to: "src/scoring/types.ts"
+      via: "import type"
+      pattern: "import.*from.*types"
+    - from: "src/scoring/spec.ts"
+      to: "src/scoring/types.ts"
+      via: "uses tier arrays typed consistently"
+      pattern: "Array<\\[number, number\\]>"
+---
+
+<objective>
+Scaffold the Vite + React + TypeScript project, define all scoring types, implement shared helper functions, create the developer-facing scoring specification, and set up the Vitest test infrastructure.
+
+Purpose: Establish the foundational project structure, type contracts, and validated scoring specification that Plans 02 and 03 will implement against. The scoring spec is the single highest-risk item — it must be human-validated before any scoring code is written.
+
+Output: Working Vite project with types, helpers, spec constants, test infrastructure, and a validated SCORING_SPEC.md.
+</objective>
+
+<execution_context>
+@C:/Users/New User/.claude/get-shit-done/workflows/execute-plan.md
+@C:/Users/New User/.claude/get-shit-done/templates/summary.md
+</execution_context>
+
+<context>
+@.planning/PROJECT.md
+@.planning/ROADMAP.md
+@.planning/STATE.md
+@.planning/phases/01-scoring-engine/1-CONTEXT.md
+@.planning/phases/01-scoring-engine/01-RESEARCH.md
+
+Source documents for scoring rules (read these to produce the spec):
+@Existing_Production_Rebate_5_Uplift_points_test.docx
+@Proposed_Production_Rebate_5_Uplift_points_test.docx
+</context>
+
+<tasks>
+
+<task type="auto">
+  <name>Task 1: Scaffold Vite project and install dependencies</name>
+  <files>package.json, vite.config.ts, vitest.config.ts, tsconfig.json, tsconfig.app.json, tsconfig.node.json, src/main.tsx, src/App.tsx, index.html</files>
+  <action>
+Create the Vite + React + TypeScript project scaffold:
+
+1. Run `npm create vite@latest . -- --template react-ts` from the project root (the project root already exists with .planning/ and .docx files — scaffold into it, do NOT create a subdirectory)
+2. Run `npm install` to install base dependencies
+3. Run `npm install zustand` for state management
+4. Run `npm install -D vitest @vitest/coverage-v8` for testing
+5. Create `vitest.config.ts` at root:
+   ```typescript
+   import { defineConfig } from 'vitest/config';
+   export default defineConfig({
+     test: {
+       globals: true,
+       environment: 'jsdom',
+     },
+   });
+   ```
+6. Add to package.json scripts: `"test": "vitest run", "test:watch": "vitest", "test:coverage": "vitest run --coverage"`
+7. Verify the scaffold works: `npm run build` should succeed, `npx vitest run` should find 0 tests and exit cleanly
+
+Keep src/main.tsx and src/App.tsx minimal — just enough for the app to boot. Phase 3 builds the real UI.
+  </action>
+  <verify>
+    <automated>cd "C:/Users/New User/Dropbox/claude/uplift" && npm run build && npx vitest run 2>&1 | tail -5</automated>
+  </verify>
+  <done>Vite project builds, vitest runs without error, zustand and vitest are in package.json dependencies</done>
+</task>
+
+<task type="auto" tdd="true">
+  <name>Task 2: Define scoring types, spec constants, helpers, and SCORING_SPEC.md</name>
+  <files>src/scoring/types.ts, src/scoring/helpers.ts, src/scoring/spec.ts, src/scoring/__tests__/helpers.test.ts, .planning/phases/01-scoring-engine/SCORING_SPEC.md</files>
+  <behavior>
+    - scoreHighestTier([[90, 3], [75, 2], [50, 1]], 80) returns 2
+    - scoreHighestTier([[90, 3], [75, 2], [50, 1]], 90) returns 3
+    - scoreHighestTier([[90, 3], [75, 2], [50, 1]], 49) returns 0
+    - scoreHighestTier([[90, 3], [75, 2], [50, 1]], 50) returns 1
+    - scoreCountCapped(3, 3, 9) returns 9 (ATL: 3 persons x 3pts)
+    - scoreCountCapped(5, 1, 4) returns 4 (capped)
+    - scoreCountCapped(0, 1, 4) returns 0
+    - scoreCountCapped(8, 0.5, 4) returns 4 (proposed B5 half-point)
+    - scoreCountCapped(3, 0.5, 4) returns 1.5 (partial)
+  </behavior>
+  <action>
+**Step A — Read both .docx source documents** and produce `SCORING_SPEC.md`:
+
+The spec must contain:
+1. Every criterion from both tests listed with: ID, label, max points, scoring pattern (tiered / counted / binary / selector), exact thresholds
+2. Section maximums and totals (existing: 85, proposed: 70)
+3. Pass conditions (existing: >= 40 AND A1 mandatory met; proposed: >= 20 if QNZPE < $100m, >= 30 if QNZPE >= $100m)
+4. One-system-only criteria list with "returns N/A in other engine" annotation
+5. Shared input field mapping — which ProjectInputs field feeds which criteria in which engine
+6. Two full worked examples with line-by-line calculations (one known passer, one known failer per system — 4 examples total)
+
+**Step B — Create `src/scoring/types.ts`:**
+
+```typescript
+export interface ProjectInputs {
+  // Identity (not scored, used for display)
+  projectName: string;
+
+  // Financial — qnzpe in whole NZD dollars
+  qnzpe: number;
+
+  // Sustainability (existing only)
+  hasSustainabilityPlan: boolean;      // A1: 3pts mandatory
+  hasSustainabilityOfficer: boolean;   // A2: 2pts
+  hasCarbonReview: boolean;            // A3: 2pts
+
+  // Production Activity
+  hasStudioLease: boolean;             // existing B1: 2pts (existing only)
+  hasPreviousQNZPE: boolean;           // existing B2 / proposed A1: 2pts
+  hasAssociatedContent: boolean;       // existing B3: 1pt / proposed A2: 2pts
+  shootingNZPercent: number;           // existing B4 / proposed A3: tiered
+  regionalPercent: number;             // existing B5 / proposed A4: tiered (different thresholds)
+  picturePostPercent: number;          // existing B6 / proposed A5: tiered
+  soundPostPercent: number;            // existing B7 / proposed A6: tiered
+  vfxPercent: number;                  // existing B8 / proposed A7: tiered
+  conceptPhysicalPercent: number;      // existing B9 / proposed A8: tiered
+
+  // Personnel — percentages
+  castPercent: number;                 // existing C1 / proposed B1: tiered
+  crewPercent: number;                 // existing C2 / proposed B2: tiered
+  maoriCrewPercent: number;            // existing C3: 1pt (existing only)
+
+  // Personnel — counts
+  atlCount: number;                    // 0-3, existing C4 / proposed B3
+  btlKeyCount: number;                 // existing C5 / proposed B4: counted, cap 4
+  btlAdditionalCount: number;          // existing C6 / proposed B5: counted (1pt vs 0.5pt each)
+  hasLeadCast: boolean;                // existing C7 / proposed B6: binary
+  supportingCastCount: number;         // 0-3, existing C8 / proposed B7
+  castingLevel: 'none' | 'associate' | 'director';  // existing C9 / proposed B8
+  hasLeadCastMaori: boolean;           // existing C10: 2pts (existing only)
+
+  // Skills & Development
+  hasMasterclass: boolean;             // existing D1: 2pts (existing only)
+  hasIndustrySeminars: boolean;        // proposed C1: 1pt
+  hasEdSeminars: boolean;              // existing D2 / proposed C2: 1pt
+  attachmentCount: number;             // existing D3 / proposed C3: tiered by QNZPE
+  internshipCount: number;             // existing D4 / proposed C4: tiered by QNZPE
+
+  // Innovation (existing only)
+  hasKnowledgeTransfer: boolean;       // existing E1: 2pts
+  commercialAgreementPercent: number;  // existing E2: tiered (0.25/0.5/1% of QNZPE)
+  infrastructureInvestment: number;    // existing E3: tiered ($500k/$1m/$2m) in whole NZD
+
+  // Marketing
+  premiereType: 'none' | 'nz' | 'world';  // existing F1: selector (existing only shape)
+  hasNZPremiere: boolean;              // proposed D1 part 1: 2pts
+  hasIntlPromotion: boolean;           // proposed D1 part 2: 2pts
+  hasFilmMarketing: boolean;           // existing F2 / proposed D2: 3pts
+  hasTourismMarketing: boolean;        // existing F3: 3pts (existing only — replaced by D3+D4 in proposed)
+  hasTourismPartnership: boolean;      // existing F4 / proposed D4: 3pts existing / 4pts proposed
+  hasLocationAnnouncement: boolean;    // proposed D3: 1pt (proposed only)
+}
+```
+
+Ensure all fields have JSDoc comments noting which criterion/criteria they map to and the unit (dollars, percentage 0-100, count).
+
+Create `ScoringResult`, `CriterionResult`, and `SectionResult` interfaces per the research document patterns. `CriterionResult.score` must be `number | 'N/A'`. Include `mandatory` and `mandatoryMet` optional boolean fields.
+
+**Step C — Create `src/scoring/spec.ts`:**
+
+Export `EXISTING_SPEC` and `PROPOSED_SPEC` constants containing all tier arrays, point values, caps, and section metadata as typed objects. These constants are the single source of truth for all numeric rules — scoring functions reference these, not inline magic numbers.
+
+**Step D — Create `src/scoring/helpers.ts`:**
+
+Implement `scoreHighestTier(tiers, value)` and `scoreCountCapped(count, pointsEach, cap)` per the research patterns. Both are pure functions, no side effects.
+
+**Step E — Write tests in `src/scoring/__tests__/helpers.test.ts`:**
+
+Write tests FIRST (RED), then implement helpers to pass them. Cover edge cases: exactly-on-threshold, zero input, max input, half-point arithmetic for proposed B5.
+  </action>
+  <verify>
+    <automated>cd "C:/Users/New User/Dropbox/claude/uplift" && npx vitest run src/scoring/__tests__/helpers.test.ts</automated>
+  </verify>
+  <done>
+- SCORING_SPEC.md exists with all criteria from both tests, 4 worked examples, shared input mapping
+- types.ts exports ProjectInputs, ScoringResult, CriterionResult, SectionResult
+- spec.ts exports EXISTING_SPEC and PROPOSED_SPEC with all numeric rules
+- helpers.ts exports scoreHighestTier and scoreCountCapped
+- All helper tests pass
+  </done>
+</task>
+
+<task type="checkpoint:human-verify" gate="blocking">
+  <what-built>SCORING_SPEC.md — a developer-facing specification translating both .docx policy documents into exact numeric scoring rules. This is the ground truth for all tests and implementation in Plans 02 and 03.</what-built>
+  <how-to-verify>
+    1. Open `.planning/phases/01-scoring-engine/SCORING_SPEC.md`
+    2. Open `Existing_Production_Rebate_5_Uplift_points_test.docx` alongside
+    3. Verify each existing criterion (A1-A3, B1-B9, C1-C10, D1-D4, E1-E3, F1-F4) matches the .docx — check point values, thresholds, and scoring patterns
+    4. Open `Proposed_Production_Rebate_5_Uplift_points_test.docx` alongside
+    5. Verify each proposed criterion (A1-A8, B1-B8, C1-C4, D1-D4) matches the .docx
+    6. Check the 4 worked examples — trace each line calculation to confirm the math is correct
+    7. Verify pass thresholds: existing = 40 + A1 mandatory; proposed = 20 (QNZPE < $100m) / 30 (QNZPE >= $100m)
+    8. Verify section totals sum to 85 (existing) and 70 (proposed)
+  </how-to-verify>
+  <resume-signal>Type "approved" if the spec accurately reflects both source documents, or describe any discrepancies found</resume-signal>
+</task>
+
+</tasks>
+
+<verification>
+- `npm run build` succeeds
+- `npx vitest run` passes all helper tests
+- SCORING_SPEC.md exists and has been human-verified against source .docx files
+- `src/scoring/types.ts` exports ProjectInputs, ScoringResult, CriterionResult
+- `src/scoring/spec.ts` exports EXISTING_SPEC, PROPOSED_SPEC
+- `src/scoring/helpers.ts` exports scoreHighestTier, scoreCountCapped
+</verification>
+
+<success_criteria>
+- Project scaffold builds and tests run
+- All type definitions are in place for downstream plans
+- Helper functions are tested and working
+- SCORING_SPEC.md is validated by human against source documents
+- spec.ts contains all numeric constants referenced by the spec
+</success_criteria>
+
+<output>
+After completion, create `.planning/phases/01-scoring-engine/01-01-SUMMARY.md`
+</output>
