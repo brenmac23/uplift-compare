@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-core-ui-01-PLAN.md
-last_updated: "2026-03-13T04:15:46.331Z"
+stopped_at: Completed 03-core-ui-02-PLAN.md
+last_updated: "2026-03-13T04:20:11.746Z"
 last_activity: 2026-03-13 — Phase 2 Plan 01 complete — Project entity, CRUD, schema migration, productionType added
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 71
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-13)
 
 **Core value:** Instant, accurate side-by-side comparison of how a production fares under both the existing and proposed uplift scoring systems
-**Current focus:** Phase 2 — Data Layer
+**Current focus:** Phase 3 — Core UI
 
 ## Current Position
 
-Phase: 2 of 4 (Data Layer)
-Plan: 1 of 3 in current phase (Plan 01 complete)
-Status: Active — Plan 02-01 complete, ready for Plan 02 (seed data)
-Last activity: 2026-03-13 — Phase 2 Plan 01 complete — Project entity, CRUD, schema migration, productionType added
+Phase: 3 of 4 (Core UI)
+Plan: 2 of 4 in current phase (Plan 02 complete)
+Status: Active — Plan 03-02 complete, ready for Plan 03 (detail screen)
+Last activity: 2026-03-13 — Phase 3 Plan 02 complete — SummaryPage with table, filter bar, clickable stat cards
 
-Progress: [███████░░░] 71%
+Progress: [████████░░] 82%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [███████░░░] 71%
 | Phase 02-data-layer P02 | 7 | 2 tasks | 3 files |
 | Phase 02-data-layer P03 | 3 | 1 tasks | 10 files |
 | Phase 03-core-ui P01 | 3 | 2 tasks | 20 files |
+| Phase 03-core-ui P02 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,8 @@ Recent decisions affecting current work:
 - [Phase 03-core-ui]: Added .npmrc with legacy-peer-deps=true — @tailwindcss/vite@4.x declares peer vite ^5-7 but project uses vite@8; --legacy-peer-deps resolves conflict without downgrading
 - [Phase 03-core-ui]: tsconfig.json updated to include compilerOptions.paths for shadcn init to detect the @ alias (shadcn reads root tsconfig, not tsconfig.app.json)
 - [Phase 03-core-ui]: PassFailBadge uses standard Tailwind blue/orange classes instead of custom @theme colors — more reliable without CSS variable mapping
+- [Phase 03-core-ui]: Stats derived from filtered list not full list — ensures stat cards reflect current view
+- [Phase 03-core-ui]: Stat cards toggle filter: clicking active card clears it back to all; clicking Total clears all filters
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T04:15:46.329Z
-Stopped at: Completed 03-core-ui-01-PLAN.md
+Last session: 2026-03-13T04:20:11.744Z
+Stopped at: Completed 03-core-ui-02-PLAN.md
 Resume file: None

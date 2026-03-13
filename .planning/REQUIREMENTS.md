@@ -25,9 +25,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **PROJ-03**: Seed data follows realism rules (all have A1, none have C3/C10, B1 rare, big budget = low qualifying persons, Section E rare/big budget only, most reach 80% on C2 especially smaller budgets)
 - [x] **PROJ-04**: User can create new projects via input form
 - [ ] **PROJ-05**: Project detail screen shows side-by-side comparison with dropdown to switch between projects
-- [ ] **PROJ-06**: Summary screen shows all projects with descriptions and pass/fail status for each test
-- [ ] **PROJ-07**: User can filter and sort the project list (by pass/fail, type, budget)
-- [ ] **PROJ-08**: Summary screen shows aggregate statistics (pass rates per test)
+- [x] **PROJ-06**: Summary screen shows all projects with descriptions and pass/fail status for each test
+- [x] **PROJ-07**: User can filter and sort the project list (by pass/fail, type, budget)
+- [x] **PROJ-08**: Summary screen shows aggregate statistics (pass rates per test)
 - [ ] **PROJ-09**: User can import project data from JSON/clipboard
 
 ### Export & Display
@@ -87,9 +87,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-04 | Phase 2 | Complete |
 | INFRA-01 | Phase 2 | Complete |
 | PROJ-05 | Phase 3 | Pending |
-| PROJ-06 | Phase 3 | Pending |
-| PROJ-07 | Phase 3 | Pending |
-| PROJ-08 | Phase 3 | Pending |
+| PROJ-06 | Phase 3 | Complete |
+| PROJ-07 | Phase 3 | Complete |
+| PROJ-08 | Phase 3 | Complete |
 | PROJ-09 | Phase 3 | Pending |
 | DISP-02 | Phase 3 | Complete |
 | DISP-03 | Phase 3 | Complete |
