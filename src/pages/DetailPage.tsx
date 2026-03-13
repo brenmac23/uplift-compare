@@ -581,50 +581,6 @@ function ScoreSlot({ slotIndex, result, side }: { slotIndex: number; result: Ret
   );
 }
 
-// ── Score column: renders aligned section slots ───────────────────────────────
-
-interface ScoreColumnProps {
-  result: { sections: ReturnType<typeof scoreExisting>['sections'] } & ReturnType<typeof scoreExisting>;
-  side: 'existing' | 'proposed';
-}
-
-function ScoreColumn({ result, side }: ScoreColumnProps) {
-  return (
-    <div className="flex flex-col gap-3">
-      {SECTION_ALIGNMENT.map((slot, idx) => {
-        const section = findSection(result, side === 'existing' ? slot.existingSectionId : slot.proposedSectionId);
-
-        if (!section) {
-          return (
-            <div
-              key={idx}
-              className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-xs text-gray-400"
-            >
-              No equivalent in {side === 'existing' ? 'existing' : 'proposed'} test
-            </div>
-          );
-        }
-
-        const subtitle = `${section.totalPoints} / ${section.maxPoints} pts`;
-
-        return (
-          <SectionBlock
-            key={idx}
-            title={`Section ${section.id}: ${section.label}`}
-            subtitle={subtitle}
-          >
-            <div className="divide-y divide-gray-100">
-              {section.criteria.map((criterion) => (
-                <CriterionRow key={criterion.id} criterion={criterion} side={side} />
-              ))}
-            </div>
-          </SectionBlock>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── DetailPage ────────────────────────────────────────────────────────────────
 
 export function DetailPage() {
@@ -773,7 +729,7 @@ export function DetailPage() {
         </div>
 
         {/* Section rows — each alignment slot rendered across all 3 columns */}
-        {SECTION_ALIGNMENT.map((slot, idx) => (
+        {SECTION_ALIGNMENT.map((_, idx) => (
           <div key={idx} className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
             <div>
               <InputSlot slotIndex={idx} inputs={inputs} onChange={handleChange} />
