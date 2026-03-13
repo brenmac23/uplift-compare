@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-13T05:05:23.151Z"
+stopped_at: Completed 04-export-and-polish 04-01-PLAN.md
+last_updated: "2026-03-13T07:59:37.111Z"
 last_activity: 2026-03-13 — Phase 3 Plan 04 complete — Create modal, JSON import, NavBar wiring, human verification passed
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
   percent: 100
 ---
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 03-core-ui P02 | 5 | 2 tasks | 3 files |
 | Phase 03-core-ui P03 | 4 | 2 tasks | 5 files |
 | Phase 03-core-ui P04 | 15 | 2 tasks | 6 files |
+| Phase 04-export-and-polish P01 | 3 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,9 @@ Recent decisions affecting current work:
 - [Phase 03-04]: QNZPE entered in millions in create form (user types 100, stored as 100_000_000)
 - [Phase 03-04]: Commercial Agreement % and Infrastructure Investment use Select dropdowns matching scoring tier structure
 - [Phase 03-04]: 6 post-verification fixes committed in single fix commit (0fd0e20) — QNZPE units, dropdowns, row alignment, badge alignment, sticky header clearance
+- [Phase 04-export-and-polish]: SheetJS installed from CDN tarball not npm registry (frozen at 0.18.5)
+- [Phase 04-export-and-polish]: Relative imports used in exportXlsx.ts (not @/ alias) — vitest does not resolve @/ without explicit test.alias config
+- [Phase 04-export-and-polish]: buildHeaders/buildRow exported as pure functions separate from exportXlsx to enable unit testing
 
 ### Pending Todos
 
@@ -119,6 +123,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T05:05:23.147Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-export-and-polish/04-CONTEXT.md
+Last session: 2026-03-13T07:59:37.109Z
+Stopped at: Completed 04-export-and-polish 04-01-PLAN.md
+Resume file: None

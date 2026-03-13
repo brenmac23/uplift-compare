@@ -78,7 +78,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. A user can click an export button and receive a downloadable .xlsx file containing the project's scoring data
   2. The export works without a server request — the file is generated entirely in the browser
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 04-01-PLAN.md — Excel export: SheetJS install, exportXlsx function with tests, ExportButton in NavBar
@@ -94,4 +94,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
 | 2. Data Layer | 3/3 | Complete   | 2026-03-13 |
 | 3. Core UI | 4/4 | Complete   | 2026-03-13 |
-| 4. Export and Polish | 0/2 | Not started | - |
+| 4. Export and Polish | 1/2 | In Progress|  |

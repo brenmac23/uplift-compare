@@ -32,7 +32,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Export & Display
 
-- [ ] **DISP-01**: User can export project data to Excel format
+- [x] **DISP-01**: User can export project data to Excel format
 - [x] **DISP-02**: App uses light theme with aesthetic, tidy design
 - [x] **DISP-03**: Visual pass/fail indicators (colour + text, not colour alone)
 - [x] **DISP-04**: Each criterion has tooltip/help text explaining the rule in plain English
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-03 | Phase 3 | Complete |
 | DISP-04 | Phase 3 | Complete |
 | DISP-05 | Phase 3 | Complete |
-| DISP-01 | Phase 4 | Pending |
+| DISP-01 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 23 total
