@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: active
-stopped_at: Completed 01-scoring-engine plan 01 — ready for Plans 02 and 03 (Wave 2)
-last_updated: "2026-03-13T01:20:19.924Z"
-last_activity: 2026-03-13 — Plan 01 complete (SCORING_SPEC.md human-verified, C6 correction applied)
+status: completed
+stopped_at: Completed 01-scoring-engine plan 02 — scoreExisting() implemented and tested
+last_updated: "2026-03-13T01:29:27.261Z"
+last_activity: 2026-03-13 — Plan 01 fully complete including human-verified SCORING_SPEC.md
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 3
   percent: 25
 ---
 
@@ -54,6 +54,8 @@ Progress: [███░░░░░░░] 25%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01-scoring-engine P01 | 23 min | 3 tasks | 20 files |
+| Phase 01-scoring-engine P02 | 5 | 2 tasks | 2 files |
+| Phase 01-scoring-engine P03 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -74,6 +76,10 @@ Recent decisions affecting current work:
 - [01-01]: Existing B5 Regional is flat 25% threshold (2pts), proposed A4 adds tiered 10% lower threshold
 - [Phase 01-01]: Existing C6 BTL Additional = 0.5pts per role (not 1pt) — corrected during human verification of SCORING_SPEC.md
 - [Phase 01-01]: SCORING_SPEC.md is human-verified and approved as ground truth for Plans 02 and 03
+- [Phase 01-03]: Criterion count is 24 (A:8+B:8+C:4+D:4), not 22 — test corrected to match spec
+- [Phase 01-03]: D1 Premiere scored as two additive binaries — both hasNZPremiere and hasIntlPromotion can be earned independently
+- [Phase 01-02]: Criteria count is 33 (A:3+B:9+C:10+D:4+E:3+F:4), not 30 as stated in plan — counting error in plan must_haves
+- [Phase 01-02]: SCORING_SPEC.md Example 2 total is 35pts (not 36 as stated) — C section is 19pts matching Example 1, spec summary line had arithmetic error
 
 ### Pending Todos
 
@@ -85,6 +91,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T01:20:19.922Z
-Stopped at: Completed 01-scoring-engine plan 01 — ready for Plans 02 and 03 (Wave 2)
+Last session: 2026-03-13T01:29:27.260Z
+Stopped at: Completed 01-scoring-engine plan 02 — scoreExisting() implemented and tested
 Resume file: None
