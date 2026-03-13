@@ -2327,7 +2327,7 @@ export const SEED_PROJECTS: Project[] = [
     isSeeded: true,
     createdAt: '2026-01-01T00:00:00.000Z',
     inputs: {
-      projectName: 'Titanfall Legacy',
+      projectName: 'Titan Protocol',
       productionType: 'film',
       qnzpe: 210_000_000,
       hasSustainabilityPlan: true,
