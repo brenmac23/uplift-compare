@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-core-ui-03-PLAN.md
-last_updated: "2026-03-13T04:22:01.054Z"
-last_activity: 2026-03-13 — Phase 3 Plan 02 complete — SummaryPage with table, filter bar, clickable stat cards
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-03-13T12:00:00.000Z"
+last_activity: 2026-03-13 — Phase 3 Plan 04 complete — Create modal, JSON import, NavBar wiring, visual verification passed
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 10
-  percent: 82
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-13)
 
 ## Current Position
 
-Phase: 3 of 4 (Core UI)
-Plan: 2 of 4 in current phase (Plan 02 complete)
-Status: Active — Plan 03-02 complete, ready for Plan 03 (detail screen)
-Last activity: 2026-03-13 — Phase 3 Plan 02 complete — SummaryPage with table, filter bar, clickable stat cards
+Phase: 3 of 4 (Core UI) — COMPLETE
+Plan: 4 of 4 in current phase (Plan 04 complete — all Phase 3 plans done)
+Status: Phase 3 complete — ready for Phase 4 (polish/deployment)
+Last activity: 2026-03-13 — Phase 3 Plan 04 complete — Create modal, JSON import, NavBar wiring, human verification passed
 
-Progress: [████████░░] 82%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [████████░░] 82%
 | Phase 03-core-ui P01 | 3 | 2 tasks | 20 files |
 | Phase 03-core-ui P02 | 5 | 2 tasks | 3 files |
 | Phase 03-core-ui P03 | 4 | 2 tasks | 5 files |
+| Phase 03-core-ui P04 | 15 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -103,10 +104,14 @@ Recent decisions affecting current work:
 - [Phase 03-core-ui]: Stat cards toggle filter: clicking active card clears it back to all; clicking Total clears all filters
 - [Phase 03-core-ui]: Criterion tooltip keys prefixed 'existing:ID' / 'proposed:ID' to handle ID reuse across scoring systems
 - [Phase 03-core-ui]: Local useState for inputs + useMemo for scoring avoids full store re-renders on every keystroke in DetailPage
+- [Phase 03-04]: addProject accepts optional pre-generated UUID — generate before calling store to enable immediate navigate-to-new-project
+- [Phase 03-04]: QNZPE entered in millions in create form (user types 100, stored as 100_000_000)
+- [Phase 03-04]: Commercial Agreement % and Infrastructure Investment use Select dropdowns matching scoring tier structure
+- [Phase 03-04]: 6 post-verification fixes committed in single fix commit (0fd0e20) — QNZPE units, dropdowns, row alignment, badge alignment, sticky header clearance
 
 ### Pending Todos
 
-None — Plans 02 and 03 are unblocked and can proceed.
+None — Phase 3 is complete. Phase 4 (polish/deployment) is unblocked.
 
 ### Blockers/Concerns
 
@@ -114,6 +119,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T04:22:01.052Z
-Stopped at: Completed 03-core-ui-03-PLAN.md
+Last session: 2026-03-13T12:00:00.000Z
+Stopped at: Completed 03-04-PLAN.md (Phase 3 fully complete)
 Resume file: None

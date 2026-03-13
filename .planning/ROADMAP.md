@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scoring Engine** - Pure scoring functions with unit tests and validated rule encoding for both tests (completed 2026-03-13)
 - [x] **Phase 2: Data Layer** - Zustand store, localStorage persistence, seed data generation and validation (completed 2026-03-13)
-- [ ] **Phase 3: Core UI** - All three screens (form, detail, summary) with live scoring and full interactivity
+- [x] **Phase 3: Core UI** - All three screens (form, detail, summary) with live scoring and full interactivity (completed 2026-03-13)
 - [ ] **Phase 4: Export and Polish** - Excel export, help tooltips, and final visual refinement
 
 ## Phase Details
@@ -63,7 +63,7 @@ Plans:
   3. The summary screen shows aggregate statistics (e.g. "32/50 pass existing test, 41/50 pass proposed test")
   4. Pass/fail indicators use both colour and text label — a user without colour vision can distinguish pass from fail
   5. Each scoring criterion has a tooltip explaining the rule in plain English, and score sections can be collapsed and expanded
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] 03-01-PLAN.md — Foundation: Tailwind v4, shadcn/ui, theme, NavBar, PassFailBadge, routing
@@ -89,5 +89,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
 | 2. Data Layer | 3/3 | Complete   | 2026-03-13 |
-| 3. Core UI | 3/4 | In Progress|  |
+| 3. Core UI | 4/4 | Complete   | 2026-03-13 |
 | 4. Export and Polish | 0/TBD | Not started | - |

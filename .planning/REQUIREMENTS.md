@@ -28,7 +28,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **PROJ-06**: Summary screen shows all projects with descriptions and pass/fail status for each test
 - [x] **PROJ-07**: User can filter and sort the project list (by pass/fail, type, budget)
 - [x] **PROJ-08**: Summary screen shows aggregate statistics (pass rates per test)
-- [ ] **PROJ-09**: User can import project data from JSON/clipboard
+- [x] **PROJ-09**: User can import project data from JSON/clipboard
 
 ### Export & Display
 
@@ -90,7 +90,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-06 | Phase 3 | Complete |
 | PROJ-07 | Phase 3 | Complete |
 | PROJ-08 | Phase 3 | Complete |
-| PROJ-09 | Phase 3 | Pending |
+| PROJ-09 | Phase 3 | Complete |
 | DISP-02 | Phase 3 | Complete |
 | DISP-03 | Phase 3 | Complete |
 | DISP-04 | Phase 3 | Complete |
