@@ -781,9 +781,9 @@ describe('scoreProposed — existing-only criteria excluded', () => {
     expect(mandatoryCriteria).toHaveLength(0);
   });
 
-  it('proposed result has exactly 22 criteria (A:8, B:8, C:4, D:4)', () => {
+  it('proposed result has exactly 24 criteria (A:8, B:8, C:4, D:4)', () => {
     const result = scoreProposed(BASE_INPUTS);
-    expect(result.criteria).toHaveLength(22);
+    expect(result.criteria).toHaveLength(24);
   });
 
   it('section A has 8 criteria (A1-A8)', () => {
