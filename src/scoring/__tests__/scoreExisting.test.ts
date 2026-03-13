@@ -79,9 +79,9 @@ describe('scoreExisting — result shape', () => {
     expect(ids).toEqual(['A', 'B', 'C', 'D', 'E', 'F']);
   });
 
-  it('returns flat criteria list with 30 criteria', () => {
+  it('returns flat criteria list with 33 criteria (A:3 + B:9 + C:10 + D:4 + E:3 + F:4)', () => {
     const result = scoreExisting(passerInputs);
-    expect(result.criteria).toHaveLength(30);
+    expect(result.criteria).toHaveLength(33);
   });
 
   it('every criterion has id, label, score (number), and maxScore (number)', () => {
@@ -821,14 +821,16 @@ describe('scoreExisting — SCORING_SPEC.md Worked Examples', () => {
     expect(sectionTotals['F']).toBe(5);
   });
 
-  it('Example 2: known failer scores 36pts and fails on mandatory A1 not met', () => {
+  it('Example 2: known failer scores 35pts and fails on mandatory A1 not met', () => {
+    // SCORING_SPEC.md Example 2 summary states "36" but the worked example shows C=19 not 20.
+    // Correct total: B=6 + C=19 + D=5 + E=0 + F=5 = 35 (A=0 because sustainability all false).
     const result = scoreExisting(failerInputs);
-    expect(result.totalPoints).toBe(36);
+    expect(result.totalPoints).toBe(35);
     expect(result.passed).toBe(false);
     expect(result.mandatoryMet).toBe(false);
   });
 
-  it('Example 2: section breakdown A=0, B=6, C=19, D=5, E=0, F=5', () => {
+  it('Example 2: section breakdown A=0, B=6, C=19, D=5, E=0, F=5 (total 35)', () => {
     const result = scoreExisting(failerInputs);
     const sectionTotals = Object.fromEntries(result.sections.map(s => [s.id, s.totalPoints]));
     expect(sectionTotals['A']).toBe(0);
