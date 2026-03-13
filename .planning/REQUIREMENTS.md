@@ -16,6 +16,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **SCORE-05**: App displays pass/fail verdict per test per project
 - [ ] **SCORE-06**: App displays score breakdown by section with per-criterion detail
 - [ ] **SCORE-07**: Mandatory criteria (A1 sustainability in existing test) are visually highlighted
+<!-- SCORE-03, SCORE-04, SCORE-06, SCORE-07 type contracts defined in Plan 01 (ProjectInputs, ScoringResult, CriterionResult) -->
 
 ### Projects & Data
 

@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-03-13)
 ## Current Position
 
 Phase: 1 of 4 (Scoring Engine)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-13 — Roadmap created
+Plan: 1 of 4 in current phase
+Status: Awaiting human verification (checkpoint Task 3)
+Last activity: 2026-03-13 — Plan 01 tasks 1-2 complete, awaiting SCORING_SPEC.md verification
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 6%
 
 ## Performance Metrics
 
@@ -46,18 +46,23 @@ Recent decisions affecting current work:
 - [Setup]: Zustand 5 with persist middleware for localStorage (no manual wiring)
 - [Setup]: Engine-first build order — scoring correctness must be validated before any UI work begins
 - [Setup]: Raw inputs only in localStorage; scores always recomputed from inputs (never stored as source of truth)
+- [01-01]: vitest passWithNoTests: true added (exits code 1 with no test files in vitest 4.x)
+- [01-01]: qnzpe stored as whole NZD dollars (100_000_000 for $100m) for readable comparisons
+- [01-01]: CriterionResult.score typed as number | 'N/A' — N/A is not 0, enables correct total computation
+- [01-01]: Existing C7 Lead Cast = 3pts (verified by Section C total = 31)
+- [01-01]: Highest-qualifying-tier-wins confirmed for all tiered criteria (not cumulative)
+- [01-01]: Existing B5 Regional is flat 25% threshold (2pts), proposed A4 adds tiered 10% lower threshold
 
 ### Pending Todos
 
-None yet.
+- SCORING_SPEC.md must be human-verified against source .docx files before Plans 02/03 can begin
 
 ### Blockers/Concerns
 
-- [Phase 1]: Developer-facing scoring spec (translating both policy .docx files into exact numeric rules) must be written and validated before any scoring code is written — this is the single highest-risk item
-- [Phase 1]: Tiered criterion resolution (cumulative vs. exclusive tiers for VFX and similar) must be explicitly resolved in the spec before implementation
+- [Phase 1 — ACTIVE]: SCORING_SPEC.md awaiting human verification against both .docx source documents (checkpoint Task 3 of Plan 01)
 
 ## Session Continuity
 
 Last session: 2026-03-13
-Stopped at: Roadmap created, ready to plan Phase 1
+Stopped at: Plan 01 checkpoint — SCORING_SPEC.md needs human verification
 Resume file: None

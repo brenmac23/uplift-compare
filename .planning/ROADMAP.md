@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scoring Engine | 0/4 | Planning complete | - |
+| 1. Scoring Engine | 0/4 | In progress (Plan 01 checkpoint pending) | - |
 | 2. Data Layer | 0/TBD | Not started | - |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
