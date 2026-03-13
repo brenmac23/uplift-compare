@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 03-core-ui-02-PLAN.md
-last_updated: "2026-03-13T04:20:11.746Z"
-last_activity: 2026-03-13 — Phase 2 Plan 01 complete — Project entity, CRUD, schema migration, productionType added
+stopped_at: Completed 03-core-ui-03-PLAN.md
+last_updated: "2026-03-13T04:22:01.054Z"
+last_activity: 2026-03-13 — Phase 3 Plan 02 complete — SummaryPage with table, filter bar, clickable stat cards
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
   percent: 82
 ---
 
@@ -62,6 +62,7 @@ Progress: [████████░░] 82%
 | Phase 02-data-layer P03 | 3 | 1 tasks | 10 files |
 | Phase 03-core-ui P01 | 3 | 2 tasks | 20 files |
 | Phase 03-core-ui P02 | 5 | 2 tasks | 3 files |
+| Phase 03-core-ui P03 | 4 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 03-core-ui]: PassFailBadge uses standard Tailwind blue/orange classes instead of custom @theme colors — more reliable without CSS variable mapping
 - [Phase 03-core-ui]: Stats derived from filtered list not full list — ensures stat cards reflect current view
 - [Phase 03-core-ui]: Stat cards toggle filter: clicking active card clears it back to all; clicking Total clears all filters
+- [Phase 03-core-ui]: Criterion tooltip keys prefixed 'existing:ID' / 'proposed:ID' to handle ID reuse across scoring systems
+- [Phase 03-core-ui]: Local useState for inputs + useMemo for scoring avoids full store re-renders on every keystroke in DetailPage
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T04:20:11.744Z
-Stopped at: Completed 03-core-ui-02-PLAN.md
+Last session: 2026-03-13T04:22:01.052Z
+Stopped at: Completed 03-core-ui-03-PLAN.md
 Resume file: None

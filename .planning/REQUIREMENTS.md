@@ -24,7 +24,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **PROJ-02**: Seed data distribution: half pass existing test, half fail; half over $100m QNZPE, all over $20m QNZPE
 - [x] **PROJ-03**: Seed data follows realism rules (all have A1, none have C3/C10, B1 rare, big budget = low qualifying persons, Section E rare/big budget only, most reach 80% on C2 especially smaller budgets)
 - [x] **PROJ-04**: User can create new projects via input form
-- [ ] **PROJ-05**: Project detail screen shows side-by-side comparison with dropdown to switch between projects
+- [x] **PROJ-05**: Project detail screen shows side-by-side comparison with dropdown to switch between projects
 - [x] **PROJ-06**: Summary screen shows all projects with descriptions and pass/fail status for each test
 - [x] **PROJ-07**: User can filter and sort the project list (by pass/fail, type, budget)
 - [x] **PROJ-08**: Summary screen shows aggregate statistics (pass rates per test)
@@ -35,8 +35,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **DISP-01**: User can export project data to Excel format
 - [x] **DISP-02**: App uses light theme with aesthetic, tidy design
 - [x] **DISP-03**: Visual pass/fail indicators (colour + text, not colour alone)
-- [ ] **DISP-04**: Each criterion has tooltip/help text explaining the rule in plain English
-- [ ] **DISP-05**: Score sections are collapsible/expandable
+- [x] **DISP-04**: Each criterion has tooltip/help text explaining the rule in plain English
+- [x] **DISP-05**: Score sections are collapsible/expandable
 
 ### Infrastructure
 
@@ -86,15 +86,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-03 | Phase 2 | Complete |
 | PROJ-04 | Phase 2 | Complete |
 | INFRA-01 | Phase 2 | Complete |
-| PROJ-05 | Phase 3 | Pending |
+| PROJ-05 | Phase 3 | Complete |
 | PROJ-06 | Phase 3 | Complete |
 | PROJ-07 | Phase 3 | Complete |
 | PROJ-08 | Phase 3 | Complete |
 | PROJ-09 | Phase 3 | Pending |
 | DISP-02 | Phase 3 | Complete |
 | DISP-03 | Phase 3 | Complete |
-| DISP-04 | Phase 3 | Pending |
-| DISP-05 | Phase 3 | Pending |
+| DISP-04 | Phase 3 | Complete |
+| DISP-05 | Phase 3 | Complete |
 | DISP-01 | Phase 4 | Pending |
 
 **Coverage:**
