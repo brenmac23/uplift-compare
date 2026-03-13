@@ -46,7 +46,12 @@ Plans:
   2. Of the 50 seed projects: approximately half pass the existing test, half fail; half have QNZPE >=$100m; all have QNZPE >=$20m
   3. A user can create a new project via the input form and it persists across a browser refresh
   4. The app deploys to Netlify and loads correctly with all 50 projects intact
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Store expansion: Project entity, CRUD actions, productionType field, schema migration v1->v2
+- [ ] 02-02-PLAN.md — Seed data: 50 fictional projects with distribution verification tests
+- [ ] 02-03-PLAN.md — HashRouter, minimal project list page, Netlify deployment
 
 ### Phase 3: Core UI
 **Goal**: Users can navigate all screens, see side-by-side scoring breakdowns, and interact with the full project list
@@ -77,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
-| 2. Data Layer | 0/TBD | Not started | - |
+| 2. Data Layer | 0/3 | Planning complete | - |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
