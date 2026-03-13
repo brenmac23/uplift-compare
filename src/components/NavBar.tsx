@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/store/useAppStore';
+import { CreateProjectModal } from '@/components/CreateProjectModal';
+import { ImportButton } from '@/components/ImportButton';
 
 export function NavBar() {
   const projects = useAppStore((s) => s.projects);
   const firstProjectId = projects[0]?.id;
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
@@ -36,17 +40,16 @@ export function NavBar() {
                 Detail
               </span>
             )}
-            <Button size="sm" variant="outline">
+            <Button size="sm" variant="outline" onClick={() => setModalOpen(true)}>
               New Project
             </Button>
-            <Button size="sm" variant="outline">
-              Import
-            </Button>
+            <ImportButton />
           </div>
         </div>
       </nav>
       {/* Spacer to prevent content hiding under fixed nav */}
       <div className="h-14" />
+      <CreateProjectModal open={modalOpen} onOpenChange={setModalOpen} />
     </>
   );
 }

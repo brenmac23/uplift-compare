@@ -21,7 +21,7 @@ export interface Project {
 interface AppState {
   schemaVersion: number;
   projects: Project[];
-  addProject: (inputs: ProjectInputs) => void;
+  addProject: (inputs: ProjectInputs, id?: string) => void;
   updateProject: (id: string, inputs: ProjectInputs) => void;
   deleteProject: (id: string) => void;
   resetToDefaults: () => void;
@@ -33,12 +33,12 @@ export const useAppStore = create<AppState>()(
       schemaVersion: 2,
       projects: SEED_PROJECTS,
 
-      addProject: (inputs) =>
+      addProject: (inputs, id) =>
         set((state) => ({
           projects: [
             ...state.projects,
             {
-              id: crypto.randomUUID(),
+              id: id ?? crypto.randomUUID(),
               isSeeded: false,
               inputs,
               createdAt: new Date().toISOString(),
