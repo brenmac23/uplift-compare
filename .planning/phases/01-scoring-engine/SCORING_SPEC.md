@@ -73,7 +73,7 @@
 | C3 | Māori crew ≥ 10% (of QP crew) | Flat threshold | maoriCrewPercent ≥ 10 → 1pt; < 10 → 0 | 0 or 1 |
 | C4 | Above-the-Line Crew (Director/Producer/Exec Producer/Assoc Producer/Co-Producer/Writer/Showrunner) | Counted | min(atlCount, 3) × 3pts | 0, 3, 6, or 9 |
 | C5 | BTL Key Crew (DOP/1st AD/Editor/VFX Sup/Costume Designer/Composer/Prod Designer) | Counted | scoreCountCapped(btlKeyCount, 1, 4) | 0–4 |
-| C6 | BTL Additional Crew (2nd AD/Supervising Art Director/Financial Controller/Prod Accountant/Sound Designer/Sound Editor/Sound Mixer/SFX Supervisor/Line Producer or UPM/Art Director/Hair/Makeup/Stunt Coordinator/Choreographer) | Counted | scoreCountCapped(btlAdditionalCount, 1, 4) | 0–4 |
+| C6 | BTL Additional Crew (2nd AD/Supervising Art Director/Financial Controller/Prod Accountant/Sound Designer/Sound Editor/Sound Mixer/SFX Supervisor/Line Producer or UPM/Art Director/Hair/Makeup/Stunt Coordinator/Choreographer) | Counted | scoreCountCapped(btlAdditionalCount, 0.5, 4) | 0–4 |
 | C7 | Lead Cast (1 QP) | Binary | hasLeadCast = true → 3pts | 0 or 3 |
 | C8 | Supporting Cast (up to 3 QPs) | Counted | scoreCountCapped(supportingCastCount, 1, 3) | 0–3 |
 | C9 | Casting Director or Associate (QP, credited) | Selector | castingLevel = 'director' → 2pts; 'associate' → 1pt; 'none' → 0 | 0, 1, or 2 |
@@ -255,7 +255,7 @@ passed = totalPoints >= passThreshold
 | `crewPercent` | C2: 80%→1pt | B2: 80%→3pts | Same threshold; proposed awards 3x more |
 | `atlCount` | C4: ×3pts, cap 9 | B3: ×3pts, cap 9 | Same |
 | `btlKeyCount` | C5: ×1pt, cap 4 | B4: ×1pt, cap 4 | Same |
-| `btlAdditionalCount` | C6: ×1pt, cap 4 | B5: ×0.5pt, cap 4 | Proposed awards half per person |
+| `btlAdditionalCount` | C6: ×0.5pt, cap 4 | B5: ×0.5pt, cap 4 | Same |
 | `hasLeadCast` | C7: 3pts | B6: 4pts | Proposed awards 1pt more |
 | `supportingCastCount` | C8: ×1pt, cap 3 | B7: ×1pt, cap 3 | Same |
 | `castingLevel` | C9: director=2, associate=1 | B8: director=2, associate=1 | Same |
@@ -338,12 +338,12 @@ passed = totalPoints >= passThreshold
 | C | C3 Māori crew | 5% < 10% → 0 | 0 |
 | C | C4 ATL crew | scoreCountCapped(2, 3, 9) = 6pts | 6 |
 | C | C5 BTL key crew | scoreCountCapped(3, 1, 4) = 3pts | 3 |
-| C | C6 BTL additional | scoreCountCapped(2, 1, 4) = 2pts | 2 |
+| C | C6 BTL additional | scoreCountCapped(2, 0.5, 4) = 1pt | 1 |
 | C | C7 Lead cast | hasLeadCast = true → 3pts | 3 |
 | C | C8 Supporting cast | scoreCountCapped(2, 1, 3) = 2pts | 2 |
 | C | C9 Casting | castingLevel = 'associate' → 1pt | 1 |
 | C | C10 Lead cast Māori | hasLeadCastMaori = false → 0 | 0 |
-| **C total** | | | **20** |
+| **C total** | | | **19** |
 | D | D1 Masterclass | hasMasterclass = true → 2pts | 2 |
 | D | D2 Ed seminars | hasEdSeminars = true → 1pt | 1 |
 | D | D3 Attachments | attachmentCount=2, qnzpe=$60m ≤ $100m → threshold=2; 2 ≥ 2 → 2pts | 2 |
@@ -360,10 +360,10 @@ passed = totalPoints >= passThreshold
 | **F total** | | | **5** |
 
 **Result:**
-- Total: 5 + 6 + 20 + 5 + 0 + 5 = **41 pts**
+- Total: 5 + 6 + 19 + 5 + 0 + 5 = **40 pts**
 - Mandatory (A1) met: **YES**
 - Pass threshold: 40
-- **RESULT: PASS** (41 ≥ 40 AND mandatory met)
+- **RESULT: PASS** (40 ≥ 40 AND mandatory met)
 
 ---
 
@@ -540,7 +540,7 @@ Using the same inputs as Example 1.
 | `maoriCrewPercent` | C3 | N/A | — |
 | `atlCount` | C4 (×3, cap 9) | B3 (×3, cap 9) | Same |
 | `btlKeyCount` | C5 (×1, cap 4) | B4 (×1, cap 4) | Same |
-| `btlAdditionalCount` | C6 (×1, cap 4) | B5 (×0.5, cap 4) | Proposed halves per-person points |
+| `btlAdditionalCount` | C6 (×0.5, cap 4) | B5 (×0.5, cap 4) | Same |
 | `hasLeadCast` | C7 (3pts) | B6 (4pts) | Proposed +1pt |
 | `supportingCastCount` | C8 (×1, cap 3) | B7 (×1, cap 3) | Same |
 | `castingLevel` | C9 | B8 | Same values |

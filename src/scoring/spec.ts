@@ -113,11 +113,11 @@ export const EXISTING_SPEC = {
       cap: 4,
       maxPoints: 4,
     },
-    // C6: BTL additional crew — count × 1pt, capped at 4pts (existing: 1pt each)
+    // C6: BTL additional crew — count × 0.5pt, capped at 4pts (existing: 0.5pt each)
     c6: {
       id: 'C6',
       label: 'More Below-the-Line Crew (additional roles)',
-      pointsEach: 1,
+      pointsEach: 0.5,
       cap: 4,
       maxPoints: 4,
     },
