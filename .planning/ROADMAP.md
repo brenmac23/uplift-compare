@@ -12,7 +12,7 @@ Build a static React SPA that computes and compares NZ Screen Production Rebate 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Scoring Engine** - Pure scoring functions with unit tests and validated rule encoding for both tests
+- [x] **Phase 1: Scoring Engine** - Pure scoring functions with unit tests and validated rule encoding for both tests (completed 2026-03-13)
 - [ ] **Phase 2: Data Layer** - Zustand store, localStorage persistence, seed data generation and validation
 - [ ] **Phase 3: Core UI** - All three screens (form, detail, summary) with live scoring and full interactivity
 - [ ] **Phase 4: Export and Polish** - Excel export, help tooltips, and final visual refinement
@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The A1 sustainability criterion in the existing test is flagged as mandatory in the returned result structure
   4. Shared input fields (QNZPE, crew %, cast %) are consumed by both scoring functions from a single `ProjectInputs` type — no duplication
   5. The Zustand store initialises with a `schemaVersion` field and the app can boot without crashing on a fresh localStorage
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] 01-01-PLAN.md — Project scaffold, types, helpers, scoring spec, and human verification
@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scoring Engine | 3/4 | In Progress|  |
+| 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
 | 2. Data Layer | 0/TBD | Not started | - |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |

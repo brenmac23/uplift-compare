@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 01-scoring-engine plan 02 — scoreExisting() implemented and tested
-last_updated: "2026-03-13T01:29:27.261Z"
+stopped_at: Completed 01-scoring-engine plan 04 — Zustand store, shared input integration tests, scoring barrel export
+last_updated: "2026-03-13T01:36:32.111Z"
 last_activity: 2026-03-13 — Plan 01 fully complete including human-verified SCORING_SPEC.md
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 25
 ---
 
@@ -56,6 +56,7 @@ Progress: [███░░░░░░░] 25%
 | Phase 01-scoring-engine P01 | 23 min | 3 tasks | 20 files |
 | Phase 01-scoring-engine P02 | 5 | 2 tasks | 2 files |
 | Phase 01-scoring-engine P03 | 5 | 2 tasks | 2 files |
+| Phase 01-scoring-engine P04 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,9 @@ Recent decisions affecting current work:
 - [Phase 01-03]: D1 Premiere scored as two additive binaries — both hasNZPremiere and hasIntlPromotion can be earned independently
 - [Phase 01-02]: Criteria count is 33 (A:3+B:9+C:10+D:4+E:3+F:4), not 30 as stated in plan — counting error in plan must_haves
 - [Phase 01-02]: SCORING_SPEC.md Example 2 total is 35pts (not 36 as stated) — C section is 19pts matching Example 1, spec summary line had arithmetic error
+- [Phase 01-04]: Store keeps only schemaVersion: 1 for now — Phase 2 adds projects array and actions
+- [Phase 01-04]: persist version: 1 set on store for future migrate() support in Phase 2
+- [Phase 01-04]: Barrel export includes SectionResult type for Phase 3 section-level rendering
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T01:29:27.260Z
-Stopped at: Completed 01-scoring-engine plan 02 — scoreExisting() implemented and tested
+Last session: 2026-03-13T01:36:32.109Z
+Stopped at: Completed 01-scoring-engine plan 04 — Zustand store, shared input integration tests, scoring barrel export
 Resume file: None

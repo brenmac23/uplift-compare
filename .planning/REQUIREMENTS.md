@@ -41,7 +41,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Infrastructure
 
 - [ ] **INFRA-01**: App deploys on Netlify as a static site
-- [ ] **INFRA-02**: Data persists in browser localStorage
+- [x] **INFRA-02**: Data persists in browser localStorage
 
 ## v2 Requirements
 
@@ -80,7 +80,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCORE-05 | Phase 1 | Complete |
 | SCORE-06 | Phase 1 | Complete |
 | SCORE-07 | Phase 1 | Complete |
-| INFRA-02 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Complete |
 | PROJ-01 | Phase 2 | Pending |
 | PROJ-02 | Phase 2 | Pending |
 | PROJ-03 | Phase 2 | Pending |
