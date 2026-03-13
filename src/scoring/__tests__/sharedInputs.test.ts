@@ -10,6 +10,7 @@ import type { ProjectInputs, CriterionResult } from '../types';
 
 const baseline: ProjectInputs = {
   projectName: 'Test Production',
+  productionType: 'film',
   qnzpe: 50_000_000,
 
   // Sustainability (existing only)

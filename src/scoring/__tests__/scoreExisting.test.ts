@@ -6,6 +6,7 @@ import type { ProjectInputs } from '../types';
 // This is the "known passer" from SCORING_SPEC.md Example 1 (40pts, passes)
 const passerInputs: ProjectInputs = {
   projectName: 'Test Production',
+  productionType: 'film',
   qnzpe: 60_000_000,
   // Section A
   hasSustainabilityPlan: true,
@@ -844,6 +845,7 @@ describe('scoreExisting — SCORING_SPEC.md Worked Examples', () => {
   it('maximum possible score is 85 when all criteria are maxed', () => {
     const allMax: ProjectInputs = {
       projectName: 'Max Score Production',
+      productionType: 'film',
       qnzpe: 60_000_000,
       hasSustainabilityPlan: true,
       hasSustainabilityOfficer: true,

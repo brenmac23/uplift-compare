@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAppStore } from '../useAppStore';
-import { SEED_PROJECTS } from '../../data/seedProjects';
 import type { Project } from '../useAppStore';
 
 describe('useAppStore', () => {

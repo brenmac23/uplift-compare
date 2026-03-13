@@ -7,6 +7,7 @@ import type { ProjectInputs } from '../types';
 // From SCORING_SPEC.md Example 3 (Proposed Test — Known Passer, mid-budget).
 const BASE_INPUTS: ProjectInputs = {
   projectName: 'Test Production',
+  productionType: 'film',
   qnzpe: 60_000_000,
 
   // Existing-only fields (not scored in proposed)
@@ -60,6 +61,7 @@ const BASE_INPUTS: ProjectInputs = {
 // ── Example 4 inputs from SCORING_SPEC.md: Known Failer (minimal production) ─
 const MINIMAL_INPUTS: ProjectInputs = {
   projectName: 'Minimal Production',
+  productionType: 'film',
   qnzpe: 25_000_000,
 
   // Existing-only
@@ -683,6 +685,7 @@ describe('scoreProposed — B5 half-point arithmetic', () => {
 describe('scoreProposed — maximum points achievable', () => {
   const MAX_INPUTS: ProjectInputs = {
     projectName: 'Max Score Production',
+    productionType: 'film',
     qnzpe: 200_000_000,
 
     // Existing-only
@@ -766,15 +769,6 @@ describe('scoreProposed — maximum points achievable', () => {
 // ── Existing-only criteria do NOT appear ──────────────────────────────────────
 
 describe('scoreProposed — existing-only criteria excluded', () => {
-  const EXISTING_ONLY_IDS = [
-    // Existing A section
-    'A1', // Sustainability Plan (existing)
-    'A2', // Sustainability Officer (existing)
-    'A3', // Carbon Review (existing)
-    // These criterion IDs from existing system should NOT appear in proposed
-    // (proposed uses its own A1-A8, B1-B8, C1-C4, D1-D4 labeling)
-  ];
-
   it('no criterion has mandatory: true (no mandatory in proposed)', () => {
     const result = scoreProposed(BASE_INPUTS);
     const mandatoryCriteria = result.criteria.filter((c) => c.mandatory === true);
