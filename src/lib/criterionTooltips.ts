@@ -12,19 +12,19 @@ export const CRITERION_TOOLTIPS: Record<string, string> = {
 
   // Section A: Sustainability
   'existing:A1':
-    'Production must have a Sustainability Action Plan before filming and submit a final Sustainability Report. This is mandatory — failing it causes the existing test to fail regardless of total score.',
+    'Production must have a Sustainability Action Plan before filming and submit a final Sustainability Report. This is mandatory — failing it causes the existing test to fail regardless of total score. Earns 3 points.',
   'existing:A2':
-    'A dedicated Sustainability Officer must be appointed to oversee and coordinate all sustainability efforts on the production.',
+    'A dedicated Sustainability Officer must be appointed to oversee and coordinate all sustainability efforts on the production. Earns 2 points.',
   'existing:A3':
-    'Production must commission an independent Carbon Emissions Review to measure and report the production\'s carbon footprint.',
+    'Production must commission an independent Carbon Emissions Review to measure and report the production\'s carbon footprint. Earns 2 points.',
 
   // Section B: NZ Production Activity
   'existing:B1':
-    'The production (or a related entity) must have leased an NZ studio facility for at least 3 years at the time of application.',
+    'The production (or a related entity) must have leased an NZ studio facility for at least 3 years at the time of application. Earns 2 points.',
   'existing:B2':
-    'A previous qualifying production by the same applicant must have achieved Qualifying NZ Production Expenditure (QNZPE) of $100 million or more.',
+    'A previous qualifying production by the same applicant must have achieved Qualifying NZ Production Expenditure (QNZPE) of $100 million or more. Earns 2 points.',
   'existing:B3':
-    'Production is a sequel, prequel, or spin-off of a previous production, released within 3 years of the prior production\'s delivery.',
+    'Production is a sequel, prequel, or spin-off of a previous production, released within 3 years of the prior production\'s delivery. Earns 1 point.',
   'existing:B4':
     'Points awarded based on the percentage of principal photography shot in New Zealand. 75%+ earns 1 point; 90%+ earns 2 points.',
   'existing:B5':
@@ -44,7 +44,7 @@ export const CRITERION_TOOLTIPS: Record<string, string> = {
   'existing:C2':
     'At least 80% of the total crew must be Qualifying Persons. Earns 1 point if met.',
   'existing:C3':
-    'At least 10% of the Qualifying Person crew must be Māori. This criterion exists only in the existing test.',
+    'At least 10% of the Qualifying Person crew must be Māori. Earns 1 point. This criterion exists only in the existing test.',
   'existing:C4':
     'Each Above-the-Line Qualifying Person (director, producer, writer, lead cast) earns 3 points, up to 3 people (maximum 9 points total).',
   'existing:C5':
