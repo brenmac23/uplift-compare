@@ -33,8 +33,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Export & Display
 
 - [ ] **DISP-01**: User can export project data to Excel format
-- [ ] **DISP-02**: App uses light theme with aesthetic, tidy design
-- [ ] **DISP-03**: Visual pass/fail indicators (colour + text, not colour alone)
+- [x] **DISP-02**: App uses light theme with aesthetic, tidy design
+- [x] **DISP-03**: Visual pass/fail indicators (colour + text, not colour alone)
 - [ ] **DISP-04**: Each criterion has tooltip/help text explaining the rule in plain English
 - [ ] **DISP-05**: Score sections are collapsible/expandable
 
@@ -91,8 +91,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROJ-07 | Phase 3 | Pending |
 | PROJ-08 | Phase 3 | Pending |
 | PROJ-09 | Phase 3 | Pending |
-| DISP-02 | Phase 3 | Pending |
-| DISP-03 | Phase 3 | Pending |
+| DISP-02 | Phase 3 | Complete |
+| DISP-03 | Phase 3 | Complete |
 | DISP-04 | Phase 3 | Pending |
 | DISP-05 | Phase 3 | Pending |
 | DISP-01 | Phase 4 | Pending |

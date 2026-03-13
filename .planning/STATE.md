@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-13T03:50:53.450Z"
+stopped_at: Completed 03-core-ui-01-PLAN.md
+last_updated: "2026-03-13T04:15:46.331Z"
 last_activity: 2026-03-13 — Phase 2 Plan 01 complete — Project entity, CRUD, schema migration, productionType added
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 11
+  completed_plans: 8
   percent: 71
 ---
 
@@ -60,6 +60,7 @@ Progress: [███████░░░] 71%
 | Phase 02-data-layer P01 | 3 min | 1 tasks | 4 files |
 | Phase 02-data-layer P02 | 7 | 2 tasks | 3 files |
 | Phase 02-data-layer P03 | 3 | 1 tasks | 10 files |
+| Phase 03-core-ui P01 | 3 | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,9 @@ Recent decisions affecting current work:
 - [Phase 02-data-layer]: Borderline-fail at 39pts included to maximise comparison value near 40pt pass threshold
 - [Phase 02-data-layer]: HashRouter used (not BrowserRouter) — works on Netlify without redirect config
 - [Phase 02-data-layer]: CreateProjectForm defaults all scoring inputs to zero/false/none — only name, QNZPE, productionType from form
+- [Phase 03-core-ui]: Added .npmrc with legacy-peer-deps=true — @tailwindcss/vite@4.x declares peer vite ^5-7 but project uses vite@8; --legacy-peer-deps resolves conflict without downgrading
+- [Phase 03-core-ui]: tsconfig.json updated to include compilerOptions.paths for shadcn init to detect the @ alias (shadcn reads root tsconfig, not tsconfig.app.json)
+- [Phase 03-core-ui]: PassFailBadge uses standard Tailwind blue/orange classes instead of custom @theme colors — more reliable without CSS variable mapping
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None — SCORING_SPEC.md human-verified and approved (2026-03-13).
 
 ## Session Continuity
 
-Last session: 2026-03-13T03:50:53.448Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-core-ui/03-CONTEXT.md
+Last session: 2026-03-13T04:15:46.329Z
+Stopped at: Completed 03-core-ui-01-PLAN.md
+Resume file: None
