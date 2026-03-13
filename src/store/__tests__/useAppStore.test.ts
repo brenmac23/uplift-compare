@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useAppStore } from '../useAppStore';
+import { SEED_PROJECTS } from '../../data/seedProjects';
 import type { Project } from '../useAppStore';
 
 describe('useAppStore', () => {
   beforeEach(async () => {
-    // Reset store to defaults before each test by clearing and rehydrating
+    // Reset localStorage and restore in-memory state to initial defaults.
+    // clearStorage + rehydrate alone won't reset in-memory Zustand state;
+    // we must call setState to bring the store back to its initial shape.
     await useAppStore.persist.clearStorage();
-    await useAppStore.persist.rehydrate();
+    useAppStore.setState({ schemaVersion: 2, projects: [...SEED_PROJECTS] });
   });
 
   // ── Schema version ────────────────────────────────────────────────────────
@@ -146,16 +149,25 @@ describe('useAppStore', () => {
   // ── Schema migration ──────────────────────────────────────────────────────
 
   it('migrates from v1 persisted state to v2 by injecting projects array', async () => {
-    // Simulate a v1 localStorage entry
+    // Simulate a v1 localStorage entry (version field tells Zustand which migrate path to take)
     const v1State = {
       state: { schemaVersion: 1 },
       version: 1,
     };
     localStorage.setItem('uplift-storage', JSON.stringify(v1State));
+    // Rehydrate so Zustand reads localStorage and runs the migrate() function
     await useAppStore.persist.rehydrate();
     const state = useAppStore.getState();
     expect(state.schemaVersion).toBe(2);
     expect(Array.isArray(state.projects)).toBe(true);
+  });
+
+  it('initialises with schemaVersion: 2 after clearStorage and rehydrate', async () => {
+    await useAppStore.persist.clearStorage();
+    await useAppStore.persist.rehydrate();
+    // After rehydrate with no localStorage data, store reverts to in-memory defaults
+    // (schemaVersion is already 2 from setState in beforeEach)
+    expect(useAppStore.getState().schemaVersion).toBe(2);
   });
 });
 

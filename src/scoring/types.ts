@@ -10,6 +10,9 @@ export interface ProjectInputs {
   /** Human-readable name for the production. */
   projectName: string;
 
+  /** Production type — film or TV series. */
+  productionType: 'film' | 'tv';
+
   // ── Financial ─────────────────────────────────────────────────────────────
 
   /**
