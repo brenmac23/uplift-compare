@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAppStore } from '@/store/useAppStore';
 import { CreateProjectModal } from '@/components/CreateProjectModal';
 import { ImportButton } from '@/components/ImportButton';
+import { ExportButton } from '@/components/ExportButton';
 
 export function NavBar() {
   const projects = useAppStore((s) => s.projects);
@@ -44,6 +45,7 @@ export function NavBar() {
               New Project
             </Button>
             <ImportButton />
+            <ExportButton />
           </div>
         </div>
       </nav>
