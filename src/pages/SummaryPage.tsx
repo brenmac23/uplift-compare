@@ -285,7 +285,7 @@ export function SummaryPage() {
                 {/* Existing score */}
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm">
+                    <span className="font-mono text-sm w-16 text-right">
                       {existing.totalPoints}/{existing.maxPoints}
                     </span>
                     <PassFailBadge passed={existing.passed} />
@@ -301,7 +301,7 @@ export function SummaryPage() {
                 {/* Proposed score */}
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm">
+                    <span className="font-mono text-sm w-16 text-right">
                       {proposed.totalPoints}/{proposed.maxPoints}
                     </span>
                     <PassFailBadge passed={proposed.passed} />

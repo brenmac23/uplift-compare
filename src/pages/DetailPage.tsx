@@ -39,13 +39,10 @@ interface InputsColumnProps {
   onChange: (updated: Partial<ProjectInputs>) => void;
 }
 
-function InputsColumn({ inputs, onChange }: InputsColumnProps) {
+function InputSlot({ slotIndex, inputs, onChange }: { slotIndex: number } & InputsColumnProps) {
   const set = (partial: Partial<ProjectInputs>) => onChange(partial);
 
-  return (
-    <div className="flex flex-col gap-3">
-
-      {/* Slot 0: Sustainability (existing only) */}
+  if (slotIndex === 0) return (
       <SectionBlock title="Sustainability" subtitle="Existing test only">
         <FieldRow>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -84,8 +81,9 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </label>
         </FieldRow>
       </SectionBlock>
+  );
 
-      {/* Slot 1: NZ Production Activity */}
+  if (slotIndex === 1) return (
       <SectionBlock title="NZ Production Activity">
         <FieldRow>
           <FieldLabel>Production Type</FieldLabel>
@@ -99,14 +97,20 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </select>
         </FieldRow>
         <FieldRow>
-          <FieldLabel>QNZPE (NZD)</FieldLabel>
-          <input
-            type="number"
-            min={0}
-            value={inputs.qnzpe}
-            onChange={e => set({ qnzpe: Number(e.target.value) })}
-            className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <FieldLabel>QNZPE ($M NZD)</FieldLabel>
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-gray-500">$</span>
+            <input
+              type="number"
+              min={0}
+              step={0.1}
+              value={inputs.qnzpe / 1_000_000 || ''}
+              onChange={e => set({ qnzpe: Number(e.target.value) * 1_000_000 })}
+              placeholder="e.g. 100"
+              className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-500">m</span>
+          </div>
         </FieldRow>
         <FieldRow>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -227,8 +231,9 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </div>
         </FieldRow>
       </SectionBlock>
+  );
 
-      {/* Slot 2: NZ Personnel */}
+  if (slotIndex === 2) return (
       <SectionBlock title="NZ Personnel">
         <FieldRow>
           <FieldLabel>Cast (% Qualifying Persons)</FieldLabel>
@@ -350,8 +355,9 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </select>
         </FieldRow>
       </SectionBlock>
+  );
 
-      {/* Slot 3: Skills & Talent Development */}
+  if (slotIndex === 3) return (
       <SectionBlock title="Skills & Talent Dev.">
         <FieldRow>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -409,8 +415,9 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           />
         </FieldRow>
       </SectionBlock>
+  );
 
-      {/* Slot 4: Innovation & Infrastructure (existing only) */}
+  if (slotIndex === 4) return (
       <SectionBlock title="Innovation & Infra." subtitle="Existing test only">
         <FieldRow>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -425,36 +432,35 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </label>
         </FieldRow>
         <FieldRow>
-          <FieldLabel>Commercial Agreement (% of QNZPE)</FieldLabel>
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min={0}
-              max={100}
-              step={0.1}
-              value={inputs.commercialAgreementPercent}
-              onChange={e => set({ commercialAgreementPercent: Number(e.target.value) })}
-              className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-500">% <SystemTag label="Existing only" /></span>
-          </div>
+          <FieldLabel>Commercial Agreement (% of QNZPE) <SystemTag label="Existing only" /></FieldLabel>
+          <select
+            value={inputs.commercialAgreementPercent}
+            onChange={e => set({ commercialAgreementPercent: Number(e.target.value) })}
+            className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={0}>None</option>
+            <option value={0.25}>0.25% (1pt)</option>
+            <option value={0.5}>0.5% (2pts)</option>
+            <option value={1}>1%+ (3pts)</option>
+          </select>
         </FieldRow>
         <FieldRow>
-          <FieldLabel>Infrastructure Investment (NZD)</FieldLabel>
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min={0}
-              value={inputs.infrastructureInvestment}
-              onChange={e => set({ infrastructureInvestment: Number(e.target.value) })}
-              className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <SystemTag label="Existing only" />
-          </div>
+          <FieldLabel>Infrastructure Investment <SystemTag label="Existing only" /></FieldLabel>
+          <select
+            value={inputs.infrastructureInvestment}
+            onChange={e => set({ infrastructureInvestment: Number(e.target.value) })}
+            className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={0}>None</option>
+            <option value={500000}>$500k+ (1pt)</option>
+            <option value={1000000}>$1m+ (2pts)</option>
+            <option value={2000000}>$2m+ (3pts)</option>
+          </select>
         </FieldRow>
       </SectionBlock>
+  );
 
-      {/* Slot 5: Marketing & Showcasing */}
+  if (slotIndex === 5) return (
       <SectionBlock title="Marketing & Showcasing">
         <FieldRow>
           <FieldLabel>Premiere Type</FieldLabel>
@@ -540,7 +546,38 @@ function InputsColumn({ inputs, onChange }: InputsColumnProps) {
           </label>
         </FieldRow>
       </SectionBlock>
-    </div>
+  );
+
+  return null;
+}
+
+// ── Score slot: renders a single section for one side ──────────────────────
+
+function ScoreSlot({ slotIndex, result, side }: { slotIndex: number; result: ReturnType<typeof scoreExisting>; side: 'existing' | 'proposed' }) {
+  const slot = SECTION_ALIGNMENT[slotIndex];
+  const section = findSection(result, side === 'existing' ? slot.existingSectionId : slot.proposedSectionId);
+
+  if (!section) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-xs text-gray-400">
+        No equivalent in {side === 'existing' ? 'existing' : 'proposed'} test
+      </div>
+    );
+  }
+
+  const subtitle = `${section.totalPoints} / ${section.maxPoints} pts`;
+
+  return (
+    <SectionBlock
+      title={`Section ${section.id}: ${section.label}`}
+      subtitle={subtitle}
+    >
+      <div className="divide-y divide-gray-100">
+        {section.criteria.map((criterion) => (
+          <CriterionRow key={criterion.id} criterion={criterion} side={side} />
+        ))}
+      </div>
+    </SectionBlock>
   );
 }
 
@@ -666,7 +703,7 @@ export function DetailPage() {
       </div>
 
       {/* Sticky Score Header */}
-      <div className="sticky top-0 z-10 border-b bg-white shadow-sm">
+      <div className="sticky top-14 z-10 border-b bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-3">
           <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
             {/* Inputs column header */}
@@ -720,33 +757,35 @@ export function DetailPage() {
         </div>
       </div>
 
-      {/* Three-column body */}
+      {/* Three-column body — rendered row-by-row for alignment */}
       <div className="mx-auto max-w-7xl px-4 py-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Left: Inputs */}
-          <div>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Inputs
-            </h2>
-            <InputsColumn inputs={inputs} onChange={handleChange} />
-          </div>
-
-          {/* Middle: Existing scores */}
-          <div>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
-              Existing Test — Score Breakdown
-            </h2>
-            <ScoreColumn result={existingResult} side="existing" />
-          </div>
-
-          {/* Right: Proposed scores */}
-          <div>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-violet-600">
-              Proposed Test — Score Breakdown
-            </h2>
-            <ScoreColumn result={proposedResult} side="proposed" />
-          </div>
+        {/* Column headers */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Inputs
+          </h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Existing Test — Score Breakdown
+          </h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-violet-600">
+            Proposed Test — Score Breakdown
+          </h2>
         </div>
+
+        {/* Section rows — each alignment slot rendered across all 3 columns */}
+        {SECTION_ALIGNMENT.map((slot, idx) => (
+          <div key={idx} className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-4">
+            <div>
+              <InputSlot slotIndex={idx} inputs={inputs} onChange={handleChange} />
+            </div>
+            <div>
+              <ScoreSlot slotIndex={idx} result={existingResult} side="existing" />
+            </div>
+            <div>
+              <ScoreSlot slotIndex={idx} result={proposedResult} side="proposed" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
