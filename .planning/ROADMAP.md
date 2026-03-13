@@ -13,7 +13,7 @@ Build a static React SPA that computes and compares NZ Screen Production Rebate 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scoring Engine** - Pure scoring functions with unit tests and validated rule encoding for both tests (completed 2026-03-13)
-- [ ] **Phase 2: Data Layer** - Zustand store, localStorage persistence, seed data generation and validation
+- [x] **Phase 2: Data Layer** - Zustand store, localStorage persistence, seed data generation and validation (completed 2026-03-13)
 - [ ] **Phase 3: Core UI** - All three screens (form, detail, summary) with live scoring and full interactivity
 - [ ] **Phase 4: Export and Polish** - Excel export, help tooltips, and final visual refinement
 
@@ -46,7 +46,7 @@ Plans:
   2. Of the 50 seed projects: approximately half pass the existing test, half fail; half have QNZPE >=$100m; all have QNZPE >=$20m
   3. A user can create a new project via the input form and it persists across a browser refresh
   4. The app deploys to Netlify and loads correctly with all 50 projects intact
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 02-01-PLAN.md — Store expansion: Project entity, CRUD actions, productionType field, schema migration v1->v2
@@ -82,6 +82,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scoring Engine | 4/4 | Complete   | 2026-03-13 |
-| 2. Data Layer | 2/3 | In Progress|  |
+| 2. Data Layer | 3/3 | Complete   | 2026-03-13 |
 | 3. Core UI | 0/TBD | Not started | - |
 | 4. Export and Polish | 0/TBD | Not started | - |
