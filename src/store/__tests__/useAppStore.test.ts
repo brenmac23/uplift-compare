@@ -5,11 +5,11 @@ import type { Project } from '../useAppStore';
 
 describe('useAppStore', () => {
   beforeEach(async () => {
-    // Reset localStorage and restore in-memory state to initial defaults.
-    // clearStorage + rehydrate alone won't reset in-memory Zustand state;
-    // we must call setState to bring the store back to its initial shape.
+    // Reset localStorage and restore in-memory state to an empty project list.
+    // SEED_PROJECTS now has 50 real entries — CRUD unit tests need an isolated
+    // starting state so assertions on project indices/lengths remain predictable.
     await useAppStore.persist.clearStorage();
-    useAppStore.setState({ schemaVersion: 2, projects: [...SEED_PROJECTS] });
+    useAppStore.setState({ schemaVersion: 2, projects: [] });
   });
 
   // ── Schema version ────────────────────────────────────────────────────────
