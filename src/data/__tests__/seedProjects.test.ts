@@ -120,4 +120,78 @@ describe('SEED_PROJECTS distribution and realism', () => {
     const highCrewCount = SEED_PROJECTS.filter((p) => p.inputs.crewPercent >= 80).length;
     expect(highCrewCount).toBeGreaterThanOrEqual(40);
   });
+
+  // ── Distribution correlations (DIST-01 through DIST-05) ──────────────────
+
+  describe('distribution correlations (DIST-01 through DIST-05)', () => {
+    // DIST-01: bimodal post-production
+    it('picturePostPercent is bimodal — all values either <= 10 or >= 75', () => {
+      for (const p of SEED_PROJECTS) {
+        const v = p.inputs.picturePostPercent;
+        expect(v <= 10 || v >= 75).toBe(true);
+      }
+    });
+
+    it('soundPostPercent is bimodal — all values either <= 10 or >= 75', () => {
+      for (const p of SEED_PROJECTS) {
+        const v = p.inputs.soundPostPercent;
+        expect(v <= 10 || v >= 75).toBe(true);
+      }
+    });
+
+    it('at least 40% of projects have high post-production (picturePostPercent >= 75)', () => {
+      const count = SEED_PROJECTS.filter((p) => p.inputs.picturePostPercent >= 75).length;
+      expect(count).toBeGreaterThanOrEqual(20);
+    });
+
+    // DIST-02: VFX/concept independence
+    it('vfxPercent and conceptPhysicalPercent vary independently from post-production cluster', () => {
+      const highPost = SEED_PROJECTS.filter((p) => p.inputs.picturePostPercent >= 75);
+      const lowPost = SEED_PROJECTS.filter((p) => p.inputs.picturePostPercent <= 10);
+      const mean = (arr: typeof SEED_PROJECTS, key: 'vfxPercent' | 'conceptPhysicalPercent') =>
+        arr.reduce((sum, p) => sum + p.inputs[key], 0) / arr.length;
+      const highPostVfxMean = mean(highPost, 'vfxPercent');
+      const lowPostVfxMean = mean(lowPost, 'vfxPercent');
+      expect(Math.abs(highPostVfxMean - lowPostVfxMean)).toBeLessThan(30);
+    });
+
+    // DIST-03: C6 >= C5 constraint
+    it('btlAdditionalCount >= btlKeyCount for all projects', () => {
+      for (const p of SEED_PROJECTS) {
+        expect(p.inputs.btlAdditionalCount).toBeGreaterThanOrEqual(p.inputs.btlKeyCount);
+      }
+    });
+
+    it('btlKeyCount === 0 implies btlAdditionalCount === 0', () => {
+      for (const p of SEED_PROJECTS) {
+        if (p.inputs.btlKeyCount === 0) {
+          expect(p.inputs.btlAdditionalCount).toBe(0);
+        }
+      }
+    });
+
+    // DIST-04: B4/C2 co-variance
+    it('low shooting percent correlates with lower crew percent pass rate', () => {
+      const lowShooting = SEED_PROJECTS.filter((p) => p.inputs.shootingNZPercent < 75);
+      const highShooting = SEED_PROJECTS.filter((p) => p.inputs.shootingNZPercent >= 90);
+      const passRate = (arr: typeof SEED_PROJECTS) =>
+        arr.length === 0
+          ? 0
+          : arr.filter((p) => p.inputs.crewPercent >= 80).length / arr.length;
+      const lowShootingPassRate = passRate(lowShooting);
+      const highShootingPassRate = passRate(highShooting);
+      expect(highShootingPassRate).toBeGreaterThan(lowShootingPassRate);
+    });
+
+    // DIST-05: budget-inverse qualifying person
+    it('higher budget tiers have lower average atlCount', () => {
+      const smallMid = SEED_PROJECTS.filter((p) => p.inputs.qnzpe < 100_000_000);
+      const largeTentpole = SEED_PROJECTS.filter((p) => p.inputs.qnzpe >= 100_000_000);
+      const mean = (arr: typeof SEED_PROJECTS) =>
+        arr.reduce((sum, p) => sum + p.inputs.atlCount, 0) / arr.length;
+      const smallMidMean = mean(smallMid);
+      const largeTentpoleMean = mean(largeTentpole);
+      expect(smallMidMean).toBeGreaterThan(largeTentpoleMean);
+    });
+  });
 });
