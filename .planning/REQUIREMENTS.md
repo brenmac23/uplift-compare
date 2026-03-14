@@ -22,11 +22,11 @@ Requirements for Realistic Seed Data milestone. Each maps to roadmap phases.
 
 ### Distribution Realism
 
-- [ ] **DIST-01**: Post-production fields (B6/B7) are bimodal — picture and sound are coupled, avoiding implausible mid-range values
-- [ ] **DIST-02**: VFX (B8) and concept/physical effects (B9) are independently random, not coupled to picture/sound
-- [ ] **DIST-03**: BTL additional crew (C6) is almost always >= BTL key crew (C5); C5=0 implies C6=0
-- [ ] **DIST-04**: Low shooting % (B4) correlates with low crew % (C2)
-- [ ] **DIST-05**: Higher QNZPE inversely correlates with qualifying person scores (C4, C5, C7, C8, C1)
+- [x] **DIST-01**: Post-production fields (B6/B7) are bimodal — picture and sound are coupled, avoiding implausible mid-range values
+- [x] **DIST-02**: VFX (B8) and concept/physical effects (B9) are independently random, not coupled to picture/sound
+- [x] **DIST-03**: BTL additional crew (C6) is almost always >= BTL key crew (C5); C5=0 implies C6=0
+- [x] **DIST-04**: Low shooting % (B4) correlates with low crew % (C2)
+- [x] **DIST-05**: Higher QNZPE inversely correlates with qualifying person scores (C4, C5, C7, C8, C1)
 
 ### Special Scenarios
 
@@ -67,11 +67,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TIER-01 | Phase 6 | Pending |
 | TIER-02 | Phase 6 | Pending |
 | TIER-03 | Phase 6 | Pending |
-| DIST-01 | Phase 6 | Pending |
-| DIST-02 | Phase 6 | Pending |
-| DIST-03 | Phase 6 | Pending |
-| DIST-04 | Phase 6 | Pending |
-| DIST-05 | Phase 6 | Pending |
+| DIST-01 | Phase 6 | Complete |
+| DIST-02 | Phase 6 | Complete |
+| DIST-03 | Phase 6 | Complete |
+| DIST-04 | Phase 6 | Complete |
+| DIST-05 | Phase 6 | Complete |
 | SCEN-01 | Phase 7 | Pending |
 | SCEN-02 | Phase 7 | Pending |
 | SCEN-03 | Phase 7 | Pending |
