@@ -1,161 +1,291 @@
-# Feature Landscape
+# Feature Research
 
-**Domain:** Regulatory points-test scoring and comparison tool (NZ Screen Production Rebate 5% Uplift)
-**Researched:** 2026-03-13
-**Confidence:** HIGH for domain reasoning from first principles; MEDIUM for comparison-tool UX patterns (WebSearch verified against NN/G and LogRocket); LOW for existence of directly analogous tools (none found)
+**Domain:** Probabilistic seed data generation for NZ screen production scoring tool
+**Researched:** 2026-03-14
+**Confidence:** HIGH (domain rules provided directly by NZ screen production expert; existing codebase read in full)
 
 ---
 
 ## Context
 
-This is a two-system scoring comparator. Users enter raw production data once and the app
-calculates pass/fail results under the existing and proposed Uplift points tests side by side.
-The primary audience is industry stakeholders (producers, production companies, rebate consultants)
-assessing the impact of a proposed regulatory change. There is no login, no backend, and no
-real-money submission — this is an analysis and advocacy tool.
+This is a subsequent-milestone research file for **v1.1 Realistic Seed Data**. v1.0 is shipped.
+The focus is exclusively on what is needed to regenerate `src/data/seedProjects.ts` so the 50
+seeded projects reflect how a line producer actually works through the NZ Uplift points test.
 
-No directly comparable public tool was found. The closest analogues are:
+The existing `SEED_PROJECTS` array is hand-authored with uniform distributions and independent
+field generation. The v1.1 generator will be a TypeScript script that produces 50 `Project`
+objects conforming to the existing `ProjectInputs` interface, passing all existing tests in
+`src/data/__tests__/seedProjects.test.ts`, and additionally passing new tests for the v1.1
+domain rules.
 
-- Film jurisdiction comparison tools (Entertainment Partners, Cast & Crew Multi-Jurisdiction)
-  which compare incentive rates across states/countries rather than two versions of one test
-- Immigration points calculators (e.g. NZ residence visa tools) — single-system, no side-by-side
-- Tax eligibility wizards — linear pass/fail, no dual-system comparison
-
-This means the feature landscape is informed by UX patterns from comparison tables, eligibility
-calculators, and score breakdown tools rather than an identical domain.
+The "users" for this feature set are: (1) the developer writing and running the generator, and
+(2) the domain experts reviewing the committed output data for plausibility.
 
 ---
 
-## Table Stakes
+## Feature Landscape
 
-Features users expect. Missing = tool feels broken or untrustworthy.
+### Table Stakes (Users Expect These)
+
+Features that must exist for the seed data to be considered realistic. Missing any of these
+produces data that a domain expert would immediately flag as implausible.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Dual scoring engine: existing + proposed | Core value of the tool — without this it is just a single calculator | High | Two distinct rule sets, different section structures, different thresholds, different pass marks |
-| Pass/fail verdict per test, per project | Users need a binary answer, not just a raw score | Low | Requires threshold logic: existing ≥40, proposed ≥20 (QNZPE <$100m) or ≥30 (QNZPE ≥$100m) |
-| Score breakdown by section | Users must understand *why* they passed or failed, not just the total | Medium | Per-section subtotals displayed for both systems; criteria within each section itemised |
-| Raw data input with auto-calculation | PROJECT.md specifies this — users enter percentages/amounts and points are derived | High | Shared inputs must feed both systems; mapping raw data to points requires encoding all criteria thresholds |
-| Shared input fields across both tests | Where criteria overlap (e.g. VFX spend %, cast nationality %), a single input should feed both scorers | Medium | Requires careful analysis of which inputs are common vs. system-specific |
-| Project list / summary view | 50 seeded projects plus user-created — users need to navigate between them | Medium | Summary screen showing all projects, pass/fail badges per test, project title, basic descriptor |
-| Project detail view | Drilling into a specific project to see its full input data and score breakdown | Low | Standard detail/master pattern |
-| Create new project | Users can model their own production | Medium | Form with all required input fields; validation required |
-| Seeded fictional projects (50) | Without seed data the tool launches empty — useless for demonstrating impact | High | Seeding is one-time work but requires care: specific pass/fail distribution, budget distribution, criterion presence rules per PROJECT.md |
-| Accurate rule encoding | Scoring must match the official documents exactly; wrong points = tool is actively harmful | High | Must be validated against source .docx files; any ambiguity needs to be surfaced |
-| Visual pass/fail indicator | Badge, colour, icon — users need to see status at a glance without reading numbers | Low | Green/red or pass/fail label; do not rely on colour alone (accessibility) |
-| Light theme, clean design | Specified in requirements; aesthetic credibility matters for stakeholder audience | Low | Design plugin handles most of this |
-| Netlify static deployment | Hard requirement — no backend | Low | React + Vite produces static output; just a deploy config |
+| Three-tier decision order | A line producer works Fundamentals first, Less Fundamental second, Point-chasing third. Generating fields without this order produces implausible combinations — e.g. a project that chases sustainability A2/A3 but has low ATL count, or point-chases marketing without covering shooting %. | MEDIUM | Tier 1: A1, B2/B3, B4, C4, C5, C7, C9. Tier 2: B1, B5, B6-B9, C1, C2, C6, C8. Tier 3: A2/A3, D1/D2, D3/D4, E1-E3, F1-F4. |
+| Budget-stratified talent scoring ($50m inflection) | Above ~$50m QNZPE, studios import ATL talent and lead cast from overseas; NZ local crew fills BTL. Below $50m, NZ talent is more prevalent across all levels. Treating all budgets identically makes high-budget projects unrealistically NZ-heavy in lead positions. | MEDIUM | `atlCount` and `hasLeadCast` skew lower for qnzpe >= $50m. `btlKeyCount` and `crewPercent` stay high regardless of budget. Inflection at $50m per domain expert. |
+| Bimodal picture/sound post-production | Productions either do post in NZ (high %) or they do not (low/zero %). A uniform random distribution produces an implausible middle cluster at 40-60%. Picture and sound post are also correlated — if you post picture in NZ you almost always post sound in NZ too. | MEDIUM | `picturePostPercent` and `soundPostPercent`: generate as a correlated pair. Bimodal: ~70% of projects in 75-95% band, ~30% in 0-20% band. Avoid the 30-70% range entirely. |
+| Non-bimodal VFX and concept/physical | VFX and concept/physical effects contracts are more fragmented and can be partially NZ-sourced. These do not follow the same bimodal pattern. | LOW | `vfxPercent` and `conceptPhysicalPercent` can range freely across 0-90%. Some projects have zero VFX (realistic for drama). |
+| BTL additional count >= BTL key count | `btlAdditionalCount` is almost always >= `btlKeyCount`. The additional BTL pool is a superset of the key positions. Generating additional < key is structurally implausible. | LOW | Enforce: `btlAdditionalCount >= btlKeyCount` for every project. Both still capped at their respective scoring maximums. |
+| Shooting/crew percent correlation | A project shooting < 75% of days in NZ has fewer NZ crew days, so the crew % of qualifying persons falls. Generating `crewPercent = 90` on a `shootingNZPercent = 60` project is implausible. Post-production is independent of shooting % (per domain expert rule 10). | MEDIUM | If `shootingNZPercent < 75`, `crewPercent` skews toward 60-82 rather than 82-95. Post-production fields remain independent. |
+| ~60% pass existing test | The existing test (40pt threshold) should pass approximately 60% of generated projects. v1.0 targets ~50%. 60% matches domain expert expectation of who realistically applies for the uplift. | LOW | Validate via `scoreExisting()` after generation. Target 55-65% band (27-33 of 50 projects). Regenerate or post-process if outside this band. |
+| Soft cap at ~50 points | Real producers stop optimising beyond ~50 points — there is no economic benefit beyond the 40pt pass threshold, and compliance costs increase. Very few projects should score 65+. | LOW | Tier 3 fields should be generated sparsely — not all passing projects max every optional category. |
+| At least 1 passes-existing-fails-proposed scenario | The core purpose of the comparison tool is demonstrating that the proposed test changes who passes. Without at least one such project the tool does not illustrate the policy impact at all. | LOW | Validate post-generation. The most reliable guarantee is one deterministic project hand-constructed with appropriate inputs, then 49 probabilistic projects. |
+| Māori criteria at ~1-2% frequency | C3 (Māori crew %) and C10 (lead cast Māori) are rare. Domain expert: approximately 1 project in 50. v1.0 has both always false. | LOW | 1 project (2%) should have `maoriCrewPercent >= 10` and `hasLeadCastMaori = true` on the same project. The remaining 49 stay false. |
+| Creative project names | Current names are generic placeholders. Names should feel like real international co-productions shot in NZ — evocative, genre-diverse, with no real NZ people or real franchise IPs (per PROJECT.md constraint). | LOW | A curated name list of 60+ options drawn without replacement. No procedural generation needed. Purely cosmetic — no scoring impact. |
+| All existing validator tests remain green | `src/data/__tests__/seedProjects.test.ts` must pass without modification. Constraints: 50 projects, unique `seed-NNN` IDs, `isSeeded=true`, `hasSustainabilityPlan=true`, budget ranges, production type mix, studio lease count (3-5), Section E budget restriction, crew percent floor (40+ projects at >= 80%). | LOW | Non-negotiable. The generator must satisfy all existing constraints before adding new ones. |
 
----
+### Differentiators (Competitive Advantage)
 
-## Differentiators
-
-Features that go beyond expectations. Not required for the tool to work, but add meaningful value.
+Features that improve quality beyond "passes the tests" — making the data more convincing to a
+domain expert reviewing the full 50-project dataset.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Export to Excel | Stakeholders need to share results, paste into reports, or use in further analysis | Medium | `xlsx` or `exceljs` library handles .xlsx generation client-side; no server needed; PROJECT.md explicitly requires this |
-| Score delta column | Show the *difference* between existing and proposed scores for a project at a glance | Low | Derived from the two totals; highlights winners and losers of the change |
-| "What changed" criterion highlighting | Flag criteria where the threshold has changed between tests (e.g. VFX from 50% to 30%) so users understand which inputs are driving the difference | Medium | Requires annotating the rule difference alongside the criterion display |
-| Filter/sort project list | Filter by pass/fail (either test), production type (film/TV), budget tier — makes the 50-project dataset navigable | Medium | Client-side filtering on localStorage data; straightforward but needs UI |
-| Seed data statistics panel | Show aggregate stats: "X of 50 projects pass the existing test, Y pass the proposed test" — makes the policy impact immediately visible | Low | Pure derived computation from the seed dataset |
-| Criterion-level tooltip / help text | Each criterion row has a "?" that explains the rule in plain English | Medium | Reduces need to read source documents; especially useful for the proposed test which differs meaningfully |
-| Import project from JSON/clipboard | Power users could copy data from another source or share a project URL/JSON with a colleague | High | Requires serialisation format design; not in scope per PROJECT.md but a natural extension |
-| Section collapse / expand | Long scoring breakdowns become scannable if sections are collapsible | Low | Accordion pattern; reduces visual noise on the detail view |
-| Highlight mandatory criteria | In the existing test, A1 (sustainability) is mandatory — show this distinctly so users understand why they fail even with high totals | Low | Visual treatment only; logic already needed for scoring |
-| "Which test is harder for me" summary callout | A sentence at the top of the detail view: "This production scores X under the existing test (PASS) and Y under the proposed test (FAIL)" | Low | Purely presentational; data already computed |
+| Deterministic output via seeded PRNG | Using a fixed-seed pseudo-random number generator means the same seed always produces the same 50 projects. Domain experts can re-run the generator; diffs are clean; CI output is reproducible. | LOW | JavaScript `Math.random()` is not seedable. A ~10-line mulberry32 or xorshift PRNG seeded with a fixed integer constant is sufficient. No npm dependency required. |
+| hasPreviousQNZPE / hasAssociatedContent correlation | A franchise sequel (`hasAssociatedContent`) is more likely to also have prior NZ production history (`hasPreviousQNZPE`). Generating these independently produces implausible combinations. | LOW | If `hasAssociatedContent=true`, weight `hasPreviousQNZPE=true` at ~80%. If false, weight at ~40%. |
+| Budget-realistic QNZPE distribution (multi-modal) | Rather than a hard 25/25 split at $100m, generate QNZPE from a realistic distribution: a cluster of smaller productions ($20m-$80m), a mid-budget cluster ($80m-$180m), and a handful of large tentpoles ($180m-$350m). | LOW | Produces a more natural histogram while still satisfying the existing test constraint (20-30 projects >= $100m). |
+| Regional filming correlated with shooting % | A project barely reaching 75% NZ shooting is unlikely to have significant regional filming. High NZ shooting % projects are more plausibly spread across regions. | LOW | If `shootingNZPercent < 75`, `regionalPercent` rarely exceeds 15%. If `shootingNZPercent >= 90`, `regionalPercent` can range 10-40%. |
+| Studio lease budget-gated at $100m | `hasStudioLease` is rare (3-5 of 50) and only plausible for large productions requiring dedicated stage facilities. | LOW | Only generate `hasStudioLease=true` for projects with `qnzpe >= $100m`. Strengthens the existing count constraint. |
+| Generator validation report (stdout) | After generation, the script logs a distribution summary: pass rates for both tests, budget histogram, bimodal post distribution, tier-3 adoption rates, Māori criteria count. Lets the developer verify plausibility without running the full test suite. | LOW | ~20 lines of post-generation logging. High developer value for tuning generation parameters. |
 
----
+### Anti-Features (Commonly Requested, Often Problematic)
 
-## Anti-Features
-
-Things to deliberately NOT build. Each one either violates the stated constraints or adds
-complexity that undermines the tool's focused purpose.
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| User authentication / accounts | Out of scope (PROJECT.md); adds backend; no multi-user value here | localStorage is sufficient for single-browser usage |
-| Backend / database | Netlify static hosting constraint; adds ops burden | localStorage covers all persistence needs |
-| Sharing / collaboration | Out of scope; complex to implement correctly | Export to Excel is the sharing mechanism |
-| Submission to NZFC | Explicitly out of scope — this is analysis only; impersonating a submission tool creates liability | Add a clear disclaimer that this is not an official NZFC tool |
-| Mobile-native app | Out of scope; web responsive is sufficient for a stakeholder analysis tool | Responsive design handles tablets; phone use is not the primary use case |
-| Real NZ production names or real franchise titles | Legal risk; PROJECT.md explicitly forbids this | Fictional titles only |
-| More than two scoring systems | Scope creep; the tool is specifically existing vs. proposed | The 50-project dataset and UI are designed for exactly two columns |
-| AI / NLP criterion interpretation | Massively over-engineered; criteria are well-defined and finite | Hard-code the rules from the source documents |
-| Undo / revision history | No value for a tool this simple; localStorage has no natural branching model | Clear form + revert to seed is sufficient |
-| PDF export | More complex than Excel; Excel is what producers actually use for analysis | Excel export satisfies the need |
-| Offline PWA / service worker | Overkill for a static analysis tool; Netlify serves it fast | Plain static deployment |
-| Real-time collaboration (websockets, etc.) | Out of scope; no backend | Export covers the "show someone else" workflow |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Non-deterministic generation on every run | "More varied" data with no need to commit a fixed output | Non-deterministic output means `seedProjects.ts` changes every time the script runs. Committed diffs become noise. CI output varies. Domain expert review of the committed file becomes meaningless. | Seeded PRNG with a fixed integer seed. To get different output, change the seed constant — the change is explicit and reviewable. |
+| Storing computed scores in the seed data | "Avoid recomputing 50 projects on every load" | The existing architecture derives scores from inputs at render time and explicitly does not store them. Scores in seed data would silently diverge from engine output if scoring rules change. This is the primary anti-pattern from the original architecture research. | Keep scores computed from inputs. 50 projects × 2 scoring functions runs in microseconds on any modern device. |
+| External faker/chance/Faker.js dependency | "Easy realistic names and numeric values" | Adds a dev dependency to a one-time generation task. The output is a static file committed to the repo — the dependency only runs during authoring and does not need maintenance. Faker's naming APIs do not map to NZ screen production naming conventions anyway. | Hand-curate a 60+ name list. Implement PRNG inline (~10 lines). Zero dependencies. |
+| UI controls to adjust generation parameters | "Let stakeholders tune the distribution interactively" | Seed data is a static file consumed by the store. Interactive generation requires UI overlay, state management, and regeneration plumbing — significant scope for something that is purely a developer authoring concern. | If distribution needs changing, the developer edits generator constants and re-runs the script. One-time authoring workflow, not user-facing. |
+| Procedural project name generation | "Unlimited unique names without a hand-curated list" | Combinatorial generation (adjective + noun + subtitle) produces names that feel mechanical and generic. Real production names carry genre signals and cultural resonance that cannot be derived from word lists. | A curated list of 60-70 hand-chosen names drawn without replacement. Can be extended trivially if more than 50 seeds are ever needed. |
+| Per-criterion probability tables in JSON/YAML config | "Easier to tune without touching TypeScript" | Config files add an indirection layer. For a one-time generation script targeting a static file, inline constants are simpler, more readable, and easier for a reviewer to follow. | Inline probability constants with clear comments, grouped by tier so the three-tier logic is visually obvious in the code. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Dual scoring engine
-  ├── Raw data input form (feeds both scorers)
-  │     └── Shared input fields (one input, two consumers)
-  ├── Pass/fail verdict (consumes engine output)
-  ├── Score breakdown by section (consumes engine output)
-  │     ├── Criterion-level tooltip (decorates breakdown)
-  │     ├── Mandatory criterion highlighting (decorates breakdown)
-  │     └── "What changed" highlighting (compares rule sets)
-  └── Score delta column (compares the two totals)
+Seeded PRNG (foundation)
+    └──required by──> Three-tier decision order
+                          └──required by──> Budget-stratified talent ($50m)
+                          └──required by──> Bimodal picture/sound post
+                          └──required by──> Shooting/crew correlation
+                          └──required by──> BTL additional >= BTL key
+                          └──required by──> Regional/shooting correlation (differentiator)
 
-Project list / summary view
-  ├── Seeded fictional projects (populates list at launch)
-  ├── Create new project → Raw data input form (reuses same form)
-  ├── Pass/fail badges (consumes engine output per project)
-  ├── Filter/sort (consumes project list)
-  └── Seed data statistics panel (aggregates over project list)
+Three-tier decision order
+    └──required by──> Soft cap at ~50 points
+    └──required by──> ~60% pass existing test
 
-Export to Excel
-  └── Project data + score results (consumes engine output + inputs)
+Budget-stratified talent
+    └──contributes to──> passes-existing-fails-proposed scenario
+                         (high existing NZ-talent score + imported ATL = lower proposed score
+                          under the new proposed test weighting)
+
+All numeric generation features
+    └──validate against──> scoreExisting() [existing engine]
+    └──validate against──> scoreProposed() [existing engine]
+                               └──must produce──> passes-existing-fails-proposed (1+ projects)
+                               └──must produce──> ~60% pass existing (55-65%)
+                               └──must produce──> Māori criteria 1 project
+
+hasPreviousQNZPE / hasAssociatedContent correlation (differentiator)
+    └──enhances──> Three-tier decision order (Tier 1 historical fields)
+
+Generator validation report
+    └──observes──> All generation features (no production dependency)
+
+Creative project names
+    └──independent──> All numeric generation (drawn after all inputs are set)
 ```
+
+### Dependency Notes
+
+- **Seeded PRNG must be implemented first.** Every probabilistic choice must flow through it. All other generation features depend on determinism.
+- **Tier evaluation is sequential, not parallel.** Tier 1 fields must be resolved before Tier 2 can reference them. For example, `crewPercent` (Tier 2) needs `shootingNZPercent` (Tier 1) to apply the correlation correctly.
+- **Score validation is post-generation.** `scoreExisting()` and `scoreProposed()` run on completed `ProjectInputs` objects. If distribution targets are missed, the generator may need to retry or post-process specific projects.
+- **The passes-existing-fails-proposed scenario is easiest to guarantee with one deterministic project.** Constructing one project explicitly and generating 49 probabilistically avoids the risk of the scenario being missed by chance.
+- **Creative names are resolved last.** They are drawn from a fixed list without replacement after all inputs are finalized — no dependency on any numeric field.
 
 ---
 
-## MVP Recommendation
+## MVP Definition
 
-The tool is small enough that "MVP" is effectively the full feature set from PROJECT.md.
-The following ordering minimises wasted work:
+### Launch With (v1.1)
 
-**Phase 1 — Core engine (no UI):**
-1. Encode both rule sets as pure functions: `scoreExisting(inputs)`, `scoreProposed(inputs)`
-2. Define the shared input schema (what raw fields are needed to compute all criteria)
-3. Write unit tests against known pass/fail cases
+All items below are required for the milestone. The output is a committed `seedProjects.ts`
+replacing the current hand-authored file.
 
-**Phase 2 — Data layer:**
-4. Design localStorage schema
-5. Write 50 seeded projects; validate distribution against PROJECT.md rules
-6. CRUD operations for projects
+- [x] Seeded PRNG implementation — required for deterministic, reviewable output
+- [x] Three-tier decision order — required for domain plausibility
+- [x] Budget-stratified talent scoring ($50m inflection) — required (current data treats all budgets identically)
+- [x] Bimodal picture/sound post-production — required (current data has uniform mid-range values)
+- [x] BTL additional >= BTL key enforcement — required (current data is inconsistent)
+- [x] Shooting/crew percent correlation — required (current data generates these independently)
+- [x] ~60% pass existing test (was ~50%) — required per milestone goal
+- [x] Soft cap at ~50 points — required (current data has many projects clustered near maximum)
+- [x] At least 1 passes-existing-fails-proposed scenario — required (core tool purpose)
+- [x] Māori criteria at ~1-2% (1 project) — required (always false in v1.0)
+- [x] Creative project names — required (explicitly listed in PROJECT.md v1.1 milestone target)
+- [x] All existing `seedProjects.test.ts` tests remain green — non-negotiable
 
-**Phase 3 — UI:**
-7. Project list / summary view with pass/fail badges
-8. Project detail view with side-by-side score breakdown
-9. Input form for create/edit
-10. Score delta column
-11. Mandatory criterion highlighting (existing test A1)
+### Add After Validation (v1.x)
 
-**Phase 4 — Polish and export:**
-12. Export to Excel
-13. Filter/sort on project list
-14. Criterion-level help text tooltips
-15. Seed data statistics panel
+Add these once v1.1 P1 items are complete and a domain expert has reviewed the output.
 
-**Defer (post-ship validation):**
-- "What changed" criterion highlighting (useful but requires writing diff annotations for every criterion)
-- Section collapse / expand (low complexity but adds interaction layer)
-- Import from JSON (high complexity, unclear demand)
+- [ ] hasPreviousQNZPE / hasAssociatedContent correlation — add if reviewer flags implausible combinations
+- [ ] Budget-realistic QNZPE distribution (multi-modal) — add if the 25/25 split looks artificial in review
+- [ ] Regional filming / shooting % correlation — add if reviewer surfaces obvious implausibility
+- [ ] Studio lease budget gate (>= $100m only) — add if reviewer flags small-budget studio lease projects
+- [ ] Generator validation report (stdout) — add to ease future parameter tuning
+
+### Future Consideration (v2+)
+
+- [ ] More than 50 seed projects — only if the tool expands to a larger dataset
+- [ ] Seed data parameterised by jurisdiction or year — out of scope (tool is NZ-specific and current)
+
+---
+
+## Feature Prioritization Matrix
+
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Seeded PRNG | HIGH | LOW | P1 |
+| Three-tier decision order | HIGH | MEDIUM | P1 |
+| Budget-stratified talent ($50m inflection) | HIGH | MEDIUM | P1 |
+| Bimodal picture/sound post-production | HIGH | MEDIUM | P1 |
+| BTL additional >= BTL key | MEDIUM | LOW | P1 |
+| Shooting/crew correlation | MEDIUM | LOW | P1 |
+| ~60% pass existing test | HIGH | LOW | P1 |
+| Soft cap ~50 points | MEDIUM | LOW | P1 |
+| passes-existing-fails-proposed scenario | HIGH | LOW | P1 |
+| Māori criteria at ~1-2% | MEDIUM | LOW | P1 |
+| Creative project names | MEDIUM | LOW | P1 |
+| All existing tests remain green | HIGH | LOW | P1 |
+| hasPreviousQNZPE / hasAssociatedContent correlation | LOW | LOW | P2 |
+| Budget-realistic QNZPE distribution (multi-modal) | LOW | LOW | P2 |
+| Regional / shooting % correlation | LOW | LOW | P2 |
+| Studio lease budget gate | LOW | LOW | P2 |
+| Generator validation report (stdout) | MEDIUM | LOW | P2 |
+
+**Priority key:**
+- P1: Must have for v1.1 — blocks milestone completion
+- P2: Should have — add after P1 is committed and reviewed
+- P3: Nice to have — future consideration
+
+---
+
+## Criterion-by-Criterion Generation Reference
+
+Direct per-field notes for the implementation phase. Arranged by tier.
+
+### Tier 1 — Fundamentals (Fixed / Near-Fixed)
+
+| Field | Generation Rule |
+|-------|----------------|
+| `hasSustainabilityPlan` | Always `true`. Mandatory in existing test. No realistic applicant omits this. |
+| `hasPreviousQNZPE` | ~45% true overall. If `hasAssociatedContent=true`, weight to ~80% true. |
+| `hasAssociatedContent` | ~30% true. Sequels and franchise entries are a minority of productions. |
+| `shootingNZPercent` | Tiered distribution: ~60% of projects at 90%+ (committed NZ shoot), ~25% at 75-89%, ~15% below 75 (partial or co-productions). |
+| `atlCount` | Budget-gated. qnzpe < $50m → mostly 2-3. qnzpe >= $50m → mostly 1-2 (imported stars reduce NZ ATL count). Range 0-3. |
+| `btlKeyCount` | Mostly 3-4 regardless of budget (NZ key crew is available across all budget tiers). |
+| `hasLeadCast` | Budget-gated. qnzpe < $50m → ~85% true. qnzpe >= $50m → ~55% true (imported leads are common above inflection point). |
+| `castingLevel` | ~50% 'director', ~25% 'associate', ~25% 'none'. Independent of budget. |
+
+### Tier 2 — Less Fundamental
+
+| Field | Generation Rule |
+|-------|----------------|
+| `hasStudioLease` | ~8% true (4 of 50). Only for projects with qnzpe >= $100m. Very rare. |
+| `regionalPercent` | Correlated with `shootingNZPercent`. Shooting < 75 → 0-15%. Shooting >= 75 → 0-40% (with 25%+ being the scoring threshold). |
+| `picturePostPercent` | Bimodal pair with `soundPostPercent`. ~70% of projects: 75-95%. ~30%: 0-20%. Do not generate 30-70%. |
+| `soundPostPercent` | Same bimodal pair. If `picturePostPercent >= 75`, then `soundPostPercent >= 75` (small variance ±5% allowed). |
+| `vfxPercent` | Uniform random 0-90%. Some productions have zero VFX (realistic for drama). Scoring tiers: 50% = 1pt, 75% = 2pts, 90% = 3pts (existing). |
+| `conceptPhysicalPercent` | Uniform random 0-90%. More variable than picture/sound. |
+| `castPercent` | ~70% at 80%+ (most casts qualify). ~30% below 80% (international co-productions). |
+| `crewPercent` | Correlated with `shootingNZPercent`. Shooting < 75 → 60-82%. Shooting >= 75 → 80-95%. Post-production is independent. |
+| `btlAdditionalCount` | Always >= `btlKeyCount`. Typically btlKeyCount to btlKeyCount + 6. Range roughly 4-12. |
+| `supportingCastCount` | ~60% at 2-3, ~30% at 1, ~10% at 0. Independent of budget. |
+| `maoriCrewPercent` | 0 for 49 projects. One designated project: 10-15%. |
+| `hasLeadCastMaori` | false for 49 projects. Same single project as Māori crew: true. |
+
+### Tier 3 — Point-Chasing (Sparse, Probabilistic)
+
+| Field | Generation Rule |
+|-------|----------------|
+| `hasSustainabilityOfficer` | ~55% true. A2 is an additional compliance cost — not all productions bother. |
+| `hasCarbonReview` | ~40% true. Higher third-party cost than officer appointment; lower uptake. |
+| `hasMasterclass` | ~50% true. Discretionary effort. |
+| `hasIndustrySeminars` | ~50% true. Proposed C1 only. Discretionary. |
+| `hasEdSeminars` | ~60% true. Slightly more common — lower burden than masterclass/seminars. |
+| `attachmentCount` | ~55% of projects provide enough placements to qualify. Count varies by QNZPE band threshold (>$100m requires more). |
+| `internshipCount` | ~45% of projects provide enough to qualify. Count varies by QNZPE band (3 bands: <$50m, $50m-$150m, >$150m). |
+| `hasKnowledgeTransfer` | ~15% true. Only on qnzpe >= $100m projects (Section E budget gate). Rare commitment. |
+| `commercialAgreementPercent` | ~10% > 0. Only on qnzpe >= $100m. Represents a commercial R&D agreement. |
+| `infrastructureInvestment` | ~10% > 0. Only on qnzpe >= $100m. Combined with above: max 8 Section E active projects across the 50. |
+| `premiereType` | ~30% 'world', ~30% 'nz', ~40% 'none'. (Existing test only.) |
+| `hasNZPremiere` | ~45% true. (Proposed test D1 part 1 only, independent from `premiereType`.) |
+| `hasIntlPromotion` | ~35% true. (Proposed test D1 part 2 only.) |
+| `hasFilmMarketing` | ~35% true. Partnership with NZFC required — selective. |
+| `hasTourismMarketing` | ~25% true. (Existing F3 only.) Rare high-cost partnership. |
+| `hasTourismPartnership` | ~25% true. High-value Tourism NZ partnership. Both tests. |
+| `hasLocationAnnouncement` | ~40% true. (Proposed D3 only.) Lower bar than marketing partnerships. |
+
+---
+
+## Validation Test Extensions
+
+New test cases to add to `src/data/__tests__/seedProjects.test.ts` as part of v1.1. These enforce
+the domain rules that the v1.1 generator introduces.
+
+| Test | What It Checks |
+|------|---------------|
+| `~60% pass existing (55-65%)` | `scoreExisting().passed` count between 27 and 33 of 50 |
+| `at least 1 passes-existing-fails-proposed` | At least one project where existing passes and proposed fails |
+| `exactly 1 project has Māori criteria` | `maoriCrewPercent >= 10` and `hasLeadCastMaori === true` on the same project |
+| `btlAdditionalCount >= btlKeyCount for all` | Enforce the BTL correlation for every project |
+| `no project has picture or sound post in 30-70%` | Validate the bimodal gap — no middle-cluster values |
+| `picture and sound post are correlated` | If `picturePostPercent >= 75`, then `soundPostPercent >= 75`; and vice versa |
+| `low shooting implies lower crew %` | If `shootingNZPercent < 75`, then `crewPercent < 88` |
+| `hasStudioLease only on qnzpe >= $100m` | No small-budget project has studio lease (strengthens existing count test) |
+| `no project scores above 65 on existing test` | Soft-cap check; very few should approach the 85pt maximum |
 
 ---
 
 ## Sources
 
-- PROJECT.md — authoritative requirements and scoring rule descriptions for this project
-- [Comparison Tables for Products, Services, and Features — NN/G](https://www.nngroup.com/articles/comparison-tables/) — comparison table UX patterns
-- [How to design feature comparison tables that simplify decision-making — LogRocket](https://blog.logrocket.com/ux-design/ui-design-comparison-features/) — key UX pitfalls (information overload, mobile, visual hierarchy)
-- [103 Comparison Tool Design Examples — Baymard](https://baymard.com/ecommerce-design-examples/39-comparison-tool) — usability research noting 38% of top sites have comparison tools but users have severe difficulties; informed anti-feature decisions
-- [Accessing the 5% Uplift — NZFC](https://www.nzfilm.co.nz/incentives-co-productions/nzspr-international-productions/accessing-5-uplift) — confirms no existing official calculator tool found; NZFC provides guidance docs only
-- [Implementing CSV Data Export in React — DEV Community](https://dev.to/graciesharma/implementing-csv-data-export-in-react-without-external-libraries-3030) — confirms Excel/CSV export is straightforward in React, LOW complexity
-- [Entertainment Partners Multi-Jurisdiction Comparison Tool](https://www.ep.com/production-incentives/us/) — closest analogous domain tool found; does jurisdiction comparison not dual-system test comparison
+- `src/data/seedProjects.ts` — current v1.0 seed data, hand-authored, read in full
+- `src/data/__tests__/seedProjects.test.ts` — existing validator tests, all constraints read
+- `src/scoring/types.ts` — `ProjectInputs` interface, all fields read field-by-field
+- `src/scoring/scoreExisting.ts` — existing scoring logic, read in full
+- `.planning/PROJECT.md` — v1.1 milestone goal and out-of-scope constraints
+- `.planning/research/SUMMARY.md` — v1.0 architecture and pitfall context
+- Domain expert (NZ screen production) — all ten domain rules provided in milestone context
+
+---
+
+## Appendix: v1.0 Feature Landscape (Pre-existing)
+
+The following features were researched and implemented in v1.0. They are included for reference
+but are not in scope for the v1.1 milestone.
+
+**Table stakes (all shipped):** Dual scoring engine, pass/fail verdict, score breakdown by section,
+shared input form, project list/summary view, project detail view, create/import project, 50 seeded
+projects, accurate rule encoding, visual pass/fail indicator, light theme, Netlify deployment,
+password gate, criterion tooltips, collapsible sections, Excel export, filter/sort, statistics panel.
+
+See `git log` for v1.0 completion history.
+
+---
+*Feature research for: v1.1 Realistic Seed Data Generation*
+*Researched: 2026-03-14*

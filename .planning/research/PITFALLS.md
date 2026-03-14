@@ -1,320 +1,259 @@
-# Domain Pitfalls: Uplift Compare
+# Pitfalls Research
 
-**Domain:** Dual-system scoring calculator / policy comparison tool
-**Researched:** 2026-03-13
-**Overall confidence:** HIGH (pitfalls derived from well-documented React form and scoring calculator failure modes, cross-validated across multiple sources)
+**Domain:** Realistic probabilistic seed data generation for an existing scoring/comparison system
+**Researched:** 2026-03-14
+**Confidence:** HIGH — derived directly from the existing codebase, test suite, and scoring engine; no novel external dependencies
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites or fundamental correctness problems.
-
 ---
 
-### Pitfall 1: Misreading the Spec — Scoring Logic Implemented Wrong From the Start
+### Pitfall 1: BTL Additional Count Uncorrelated With BTL Key Count
 
-**What goes wrong:** The two scoring documents (existing and proposed) are dense policy language with tiered thresholds, conditionals, and exceptions. Developers implement what they *think* the rules say, not what they actually say. With two different systems sharing overlapping terminology (e.g. "qualifying NZ crew", "associated content"), interpretations diverge silently. The app calculates wrong numbers for weeks before anyone checks against the source.
+**What goes wrong:** `btlAdditionalCount` is generated independently of `btlKeyCount`. A project ends up with 8 additional BTL crew but only 1 key BTL crew. In reality a production would never chase additional crew points without first saturating key crew positions — key BTL roles (DOP, Editor, VFX Supervisor, etc.) are filled first, and additional crew follows from the same pool. The generated data looks implausible to any producer reviewing it.
 
-**Why it happens:** Policy documents written for regulators, not developers. Criteria like "80% NZ cast" could mean lead cast, speaking cast, or all on-screen cast — the document disambiguates but the developer doesn't notice. Two systems using similar section names (e.g. "Section B — NZ Personnel" in both) creates a false sense that they map neatly. They don't.
+**Why it happens:** Each field is assigned a random value in its own range without awareness of the relationship to adjacent fields. The generator treats `btlKeyCount` and `btlAdditionalCount` as independent draws.
 
-**Consequences:** Seed data scores are wrong. User-entered projects score wrong. The comparative value of the tool is destroyed if stakeholders discover the numbers don't match their manual calculations. Rewriting the scoring engine after UI is built is expensive.
-
-**Prevention:**
-- Before writing a single line of scoring logic, produce a written spec document translating both policy documents into developer-facing rules: exact numeric thresholds, which inputs map to which criteria, how tiered scoring works (e.g. VFX: 30%=X pts, 50%=Y pts, 75%=Z pts), and what the pass conditions are.
-- Get a domain expert (or the project owner) to review that spec document against the source .docx files before implementation begins.
-- Write unit tests for the scoring engine that hard-code known-correct inputs and expected outputs. Test edge cases: exactly at a threshold (e.g. exactly 30% VFX), just below a threshold, max possible score, min pass score.
-- Implement scoring as pure functions completely separate from UI — they are independently testable.
+**How to avoid:** Generate in dependency order. Assign `btlKeyCount` first (0-4, weighted toward 4 for larger budgets). Only then assign `btlAdditionalCount`, using `btlKeyCount` as a floor signal: if `btlKeyCount < 3`, keep `btlAdditionalCount` low (0-4); if `btlKeyCount === 4`, allow `btlAdditionalCount` up to 8. The scoring system caps additional at 8 positions for 4pts, so values above 8 are wasted — cap the generator at 8.
 
 **Warning signs:**
-- "I think this means..." in a comment next to a scoring rule
-- Scoring functions referencing UI state directly rather than clean input objects
-- No unit tests for the scoring engine
+- Any project where `btlAdditionalCount > btlKeyCount * 2` and `btlKeyCount < 3`
+- btlAdditionalCount values generated from an independent uniform draw
 
-**Phase:** Address in Phase 1 (scoring engine). Do not start seed data or UI until scoring logic is validated.
+**Phase to address:** Phase 1 (generation logic). Correlation must be built into the initial generator design, not patched after data is produced.
 
 ---
 
-### Pitfall 2: Stored Derived State — Score in localStorage, Not Inputs
+### Pitfall 2: Post-Production Fields All Correlated Together — Missing Bimodal Reality
 
-**What goes wrong:** The app stores calculated scores in localStorage alongside (or instead of) raw input data. When the scoring rules are corrected or updated, all stored project scores are now stale. There is no way to recalculate them without re-entering every project.
+**What goes wrong:** `picturePostPercent`, `soundPostPercent`, `vfxPercent`, and `conceptPhysicalPercent` are all assigned similar values — all high or all low — because the generator uses a single budget-correlated draw and applies it to all four. Real productions vary: picture and sound post almost always go together and tend to be high (a production doing NZ post-production does both), while VFX and concept/physical effects are project-type specific. A drama series might have high picture/sound but near-zero VFX. A blockbuster has high VFX but might outsource concept design. The bimodal distribution requirement (some high, some low) collapses into a uniform band.
 
-**Why it happens:** It seems efficient to cache scores. Calculating scores is fast enough to do on every render, but the team treats it like expensive computation worth persisting. Or the initial data model includes `existingScore: number` and `proposedScore: number` fields that get stored.
+**Why it happens:** It seems natural to say "if a production invests in NZ post-production, it invests in all aspects." The generator copies one value to all four fields or adds small noise around a single base.
 
-**Consequences:** The app cannot be corrected without wiping all user data. Seed data becomes unfixable. This is particularly damaging when — not if — a scoring rule interpretation is corrected post-launch.
-
-**Prevention:**
-- Only store raw inputs in localStorage: the percentages, dollar amounts, personnel counts, boolean flags the user actually entered.
-- Derive all scores at render time from stored inputs via pure scoring functions.
-- The data model in localStorage contains zero calculated fields.
-- Pass/fail status is also derived, never stored.
+**How to avoid:** Treat the four fields in two independent groups:
+- **Group 1 (coupled):** `picturePostPercent` and `soundPostPercent` — draw a single base value and apply it to both with ±5% jitter. These fields should be bimodal: ~60% of projects in the 75-90% range, ~30% in 40-60%, ~10% below 40%.
+- **Group 2 (independent):** `vfxPercent` and `conceptPhysicalPercent` — draw independently. VFX should be bimodal (either heavy VFX production or not). Concept/physical effects should be random within a 20-80% range regardless of other post fields.
 
 **Warning signs:**
-- A `score` or `points` or `passes` field in the localStorage schema
-- Scoring functions called in `useEffect` that write back to state
-- "Recalculate all" button being considered as a feature
+- All four post-production fields within 10% of each other for most projects
+- No projects with high picture/sound but low VFX
+- VFX distribution is flat (uniform) rather than bimodal
 
-**Phase:** Address in Phase 1 (data model design). A wrong data model is expensive to fix later.
+**Phase to address:** Phase 1 (generation logic).
 
 ---
 
-### Pitfall 3: Scoring Engine Entangled With UI — Pure Logic Mixed Into Components
+### Pitfall 3: Score Soft Cap Implemented as Hard Rejection — Projects Cluster at 49-51
 
-**What goes wrong:** Scoring logic lives inside React components: `if (formValues.vfxPercentage >= 30) { setExistingScore(prev => prev + 2) }`. It is impossible to test in isolation. Small UI refactors break scoring. Debugging requires rendering the full component tree.
+**What goes wrong:** The soft ~50pt cap is implemented by regenerating a project if its existing score exceeds 50. Because the scoring space above 40 is wide, the generator produces many projects in the 50-70 range, and rejects them until it lands one at or below 50. The result: many projects in the 48-50 range, a cliff at 51, and zero projects above 55. This looks artificial — a real population has a smooth tail above 50, just thinner.
 
-**Why it happens:** It feels natural to write scoring logic where the data lives — inside the component. The first implementation works, so the pattern proliferates.
+**Why it happens:** "Soft cap" is interpreted as a hard ceiling. The rejection-sampling loop discards projects scoring above a threshold, creating a discrete cliff in the distribution.
 
-**Consequences:** Untestable scoring engine. Regressions introduced by UI changes. Impossible to validate correctness without UI. Impossible for another developer to understand the scoring rules by reading the code.
-
-**Prevention:**
-- Scoring is implemented as two pure TypeScript modules: `scoreExisting(inputs: ProjectInputs): ExistingScoreResult` and `scoreProposed(inputs: ProjectInputs): ProposedScoreResult`.
-- These functions take a plain object and return a plain object. No React, no hooks, no state.
-- Components call these functions with form values and use the results for display only.
-- Use `useMemo` when wrapping the call in a component to avoid recalculation on every keystroke if performance is observed to be an issue — but measure first.
+**How to avoid:** Model the cap as a probabilistic preference, not a constraint. Generate the full project first. Then apply a probability modifier: if `existingScore > 50`, accept the project with probability `max(0.1, 1 - (existingScore - 50) * 0.15)`. This means scores of 51 have ~85% acceptance, 55 have ~25% acceptance, 60 have ~10% acceptance. The distribution tapers naturally. Alternatively: generate inputs using a tiered approach where "point-chasing" behaviours (tourism partnership, multiple marketing commitments, all Section E fields) have low base probability — this naturally limits scores without needing post-hoc rejection.
 
 **Warning signs:**
-- Scoring `if` statements inside JSX or event handlers
-- `useState` calls like `const [sectionBScore, setSectionBScore] = useState(0)` that are updated in response to form changes
-- `useEffect(() => { setSectionBScore(calculateB(form)) }, [form])` — this is the anti-pattern explicitly called out by the React team
+- Histogram of existing scores showing a sharp cliff at 50 or 51
+- Score range of 40-55 for all passing projects, no scores 56+
+- Generator using a hard `if score > 50, regenerate` loop
 
-**Phase:** Address in Phase 1. Enforce with code review.
+**Phase to address:** Phase 1 (generation algorithm design).
 
 ---
 
-### Pitfall 4: Shared Input Fields Modelled Incorrectly Across Two Systems
+### Pitfall 4: Pass Rate Targeting Through Post-Hoc Score Manipulation
 
-**What goes wrong:** Many inputs feed both scoring systems (e.g. crew nationality percentages, QNZPE budget amount). The app stores two copies of overlapping inputs — one under the existing test form and one under the proposed test form. Users must enter the same data twice. Or worse, the systems diverge when they should agree.
+**What goes wrong:** After generating all 50 projects, the pass rate is 68% (34/50) instead of the target ~60%. To fix it, the generator randomly flips `hasSustainabilityPlan` to false on some projects to fail them, or subtracts points from shootingNZPercent to push them below threshold. This produces projects with internally inconsistent inputs: high crewPercent and full ATL crew (signs of a serious production) but no sustainability plan.
 
-**Why it happens:** The two forms are built independently, section by section, because the scoring sections differ. Fields that appear in both systems are naturally encountered twice and given separate state variables.
+**Why it happens:** The target pass rate is treated as a post-hoc constraint to satisfy, not a structural outcome to engineer. The generator produces inputs independently, scores them, and then manipulates individual fields to hit the number.
 
-**Consequences:** Poor UX. Data inconsistency bugs. The single comparative value proposition ("same inputs, two systems") is undermined.
-
-**Prevention:**
-- Before building the form, map all inputs to a single `ProjectInputs` type. Label each field with which scoring system(s) use it. Many fields are shared; some are system-specific.
-- A single unified form populates a single `ProjectInputs` object. Both scoring functions receive the same object.
-- System-specific inputs that genuinely only appear in one test are clearly marked in the data model and UI.
+**How to avoid:** Design the generator so that pass rate emerges from input distributions, not from post-hoc adjustment. Specifically: assign the "fail mode" of a project before generating inputs. Roughly 40% of projects should be seeded as "low engagement" profiles — projects with low ATL counts, minimal post-production, low shooting percentage. These naturally score below 40 without manipulation. The remaining 60% are "engaged" profiles that naturally score 40+. This is how real-world production decisions work: some productions genuinely under-invest in NZ activity.
 
 **Warning signs:**
-- Two separate form state objects, one per scoring system
-- Input labels like "NZ Crew % (Existing)" and "NZ Crew % (Proposed)" for the same concept
-- Any field that is entered twice by the user
+- Generator modifying already-generated fields to adjust final score
+- Fails concentrated on fields that "look least noticeable" (hasCarbonReview, hasMasterclass) rather than distributed across all failure modes
+- All failing projects failing by the same mechanism (e.g. all fail on sustainability, or all fail on crew percentage)
 
-**Phase:** Address in Phase 1 (data model) and Phase 2 (form architecture).
+**Phase to address:** Phase 1 (generator architecture — profile-based generation, not adjustment-based).
 
 ---
 
-### Pitfall 5: localStorage Schema Changes Break Saved Data
+### Pitfall 5: Passes-Existing-Fails-Proposed Scenario Never Occurs Naturally
 
-**What goes wrong:** The `ProjectInputs` schema changes between development iterations — a field is renamed, a new required field is added, a section is restructured. Existing localStorage data from earlier sessions no longer matches the expected shape. The app crashes or silently reads `undefined` for new fields, producing wrong scores.
+**What goes wrong:** The generation produces 50 projects, none of which passes the existing test but fails the proposed test. This scenario — which is the whole analytical point of the v1.1 milestone — requires a specific pattern: a project strong in Section E (Innovation/Infrastructure, existing only), Section A (sustainability bonus under existing), or Section F legacy marketing criteria that do not carry over to the proposed system. The generator does not model the point-value differences between systems, so it never produces this combination.
 
-**Why it happens:** The data model evolves during development. Early in the project, it changes frequently. No migration strategy is in place because "we'll deal with that later."
+**Why it happens:** The generator models "good production" holistically without understanding that the two scoring systems reward different criteria. Section E (8pts max, existing only) has no equivalent in proposed. A project banking 6-7 points from Section E can pass existing (40pt threshold) while accumulating only 20-25 points under proposed (where those criteria don't exist), potentially failing the 30pt threshold for high-QNZPE productions.
 
-**Consequences:** Data corruption for users who have created projects. The 50 seed projects are unreadable after a schema change unless the seed data is also regenerated. During development, the team wastes time wiping localStorage manually.
-
-**Prevention:**
-- Add a `schemaVersion: number` field to the localStorage root object from day one.
-- On app load, check `schemaVersion` against the expected current version. If mismatched, either run a migration function or clear and re-seed.
-- During development, increment `schemaVersion` whenever the schema changes. This forces clean state automatically.
-- For production (post-launch), write a migration function that transforms old shapes to new ones rather than wiping data.
-- Keep the seed data as a versioned TypeScript constant, not a pre-baked JSON blob. This means it can be regenerated trivially.
+**How to avoid:** Explicitly design one or two "Section E heavy" project profiles. These are large-budget productions ($100m+) that invest in infrastructure and knowledge transfer (E1-E3) and rely on those points to pass existing, but score only on shared criteria for proposed. Verify via `scoreExisting(inputs).passed && !scoreProposed(inputs).passed` after generation. If none occur naturally, force one using this profile structure — but the force should be an explicitly modelled project type, not a post-hoc field tweak.
 
 **Warning signs:**
-- No `schemaVersion` field in localStorage
-- Errors like "Cannot read property 'x' of undefined" after pulling new code
-- Manual "clear localStorage and refresh" instructions in the team's dev notes
+- `scoreExisting(p).passed && !scoreProposed(p).passed` is false for all 50 seed projects
+- Section E fields (`hasKnowledgeTransfer`, `commercialAgreementPercent`, `infrastructureInvestment`) always zero or always maximum with no middle ground
+- No audit of proposed scores during generation — only existing scores are checked
 
-**Phase:** Address at project setup, before any localStorage writes.
-
----
-
-## Moderate Pitfalls
-
-Mistakes that degrade quality, correctness, or maintainability.
+**Phase to address:** Phase 1 (generation logic — include Section-E-heavy profile type). Verify in Phase 2 (testing).
 
 ---
 
-### Pitfall 6: Floating-Point Errors in Percentage Comparisons
+### Pitfall 6: Existing Test Distribution Assertions Broken by New Data
 
-**What goes wrong:** The scoring rules use percentage thresholds: "30%", "50%", "75%", "80%". When a user enters `30` as a percentage, the comparison `inputValue >= 30` works fine. But if any intermediate calculation is involved — converting from a decimal, dividing totals, accumulating fractions — floating-point drift causes `0.3000000000000004 >= 0.3` to evaluate differently than expected. A project that should score exactly at threshold does not.
+**What goes wrong:** The existing `seedProjects.test.ts` has hard assertions: 20-30 passing existing test, at least 40 projects with `crewPercent >= 80`, 3-5 with `hasStudioLease`, at most 8 with Section E active, 5+ borderline (38-42pts), QNZPE >= $20m for all. The new generation logic produces data satisfying the target requirements but violating one of these existing constraints — for example, 19 passing instead of 20, or only 38 projects with high crew percent. The test suite fails.
 
-**Why it happens:** JavaScript's IEEE 754 floating-point representation cannot exactly represent many decimal fractions. `0.1 + 0.2 === 0.3` is `false` in JavaScript.
+**Why it happens:** The v1.1 requirements add new constraints (60% pass rate, bimodal post-production, soft cap) without a complete accounting of how they interact with the existing test assertions. The new requirements are treated as additive; the existing assertions are treated as background. In practice they compete: the ~60% pass rate target (30/50) sits at the top of the existing test's 20-30 passing window. If the new bimodal distributions pull projects into lower score bands, fewer than 20 may pass.
 
-**Prevention:**
-- Accept raw percentage inputs as integers or explicit decimals from the user (e.g. "30" not "0.3").
-- When comparing against thresholds, use `Math.round(value * 100) / 100` or similar normalisation before comparison, not raw division results.
-- For the thresholds in this domain (all round numbers to 1-2 decimal places), integer arithmetic on scaled values (multiply by 100, work in integer cents) avoids the problem entirely.
-- Unit tests must include edge cases: exactly at threshold, 0.01% below threshold, 0.01% above threshold.
+**How to avoid:** Before writing the new generator, compile a complete constraint matrix — every assertion in `seedProjects.test.ts` alongside every v1.1 requirement. Identify conflicts. Specifically: the existing test says 20-30 pass existing; the v1.1 requirement says ~60%. 30/50 = 60% — this is the exact top of the range. Generate to hit 28-30 passing to stay safely within bounds. The borderline requirement (5+ in 38-42pts range) must also be preserved. After generation, run `npm test` before considering the task done.
 
 **Warning signs:**
-- Intermediate division without normalisation before a threshold comparison
-- No unit tests for boundary cases (exactly at 30%, 50%, 80%)
+- Working from the v1.1 requirements document alone without re-reading `seedProjects.test.ts`
+- Any test failure on `seedProjects.test.ts` after regeneration
 
-**Phase:** Address in Phase 1 (scoring engine unit tests will catch this).
+**Phase to address:** Phase 1 planning — produce the constraint matrix before writing any generation code. Phase 2 verification — run full test suite before committing.
 
 ---
 
-### Pitfall 7: Tiered Scoring Logic Implemented as Cumulative Rather Than Tiered
+### Pitfall 7: Determinism Not Decided — Seeds Break on Re-Run
 
-**What goes wrong:** The proposed test has tiered scoring for criteria like VFX — e.g. 2pts at 30%, 4pts at 50%, 6pts at 75%. This is commonly (and wrongly) implemented as: "if ≥30%, add 2; if ≥50%, add another 2; if ≥75%, add another 2" — producing 6 by accumulation. But the tiers are exclusive levels: you get the points for the highest tier you satisfy, not cumulative points for all tiers below it. The reverse mistake also occurs.
+**What goes wrong:** The generator uses `Math.random()` without a seeded PRNG. Every time the generation script runs, it produces different data. The test suite passes Monday, fails Wednesday on the same code. Screenshots in documentation show different project names each time. The `createdAt` timestamps drift. The `id` values (seed-001 through seed-050) may be assigned in different orders, breaking any tests that reference specific project data by ID.
 
-**Why it happens:** The spec language is ambiguous. "Up to 2 points for 30%, up to 4 points for 50%..." can be read either way without careful attention.
+**Why it happens:** `Math.random()` is the path of least resistance. The generator is written for correctness first, determinism is treated as "we'll add that later." By the time the output looks right, re-seeding the PRNG feels like extra complexity.
 
-**Prevention:**
-- During spec translation (see Pitfall 1), explicitly resolve: are these tiers cumulative or exclusive? For each tiered criterion, document which model applies.
-- Implement tiered scoring as: evaluate from highest tier to lowest, return the matching point value. This is explicit and readable.
-- Unit tests covering: one tier satisfied only, middle tier satisfied, highest tier satisfied.
+**How to avoid:** Make the generation deterministic from the start using a seeded PRNG — a simple mulberry32 or sfc32 implementation (10 lines of JavaScript, no dependency needed). Use a fixed seed constant (e.g. `42`). This means every run of the generation script produces identical output. The output TypeScript file is stable and can be committed with a known hash. The test suite tests against a known-stable dataset. If the 50 projects need to be regenerated (e.g. requirements change), bump the seed constant, not the algorithm, to avoid introducing drift accidentally.
 
 **Warning signs:**
-- `if (vfx >= 30) score += 2; if (vfx >= 50) score += 2;` — this is the accumulation error pattern
-- No unit test covering "exactly at 50%, just below 75%"
+- `Math.random()` anywhere in the generation script
+- Test output for `seedProjects.test.ts` varying between runs
+- No seed constant documented in the generator
 
-**Phase:** Address in Phase 1 (scoring engine).
+**Phase to address:** Phase 1 (generator foundation) — decide determinism strategy before writing any random draws.
 
 ---
 
-### Pitfall 8: The Proposed Test's Tiered Pass Mark Implemented as a Single Threshold
+### Pitfall 8: shootingNZPercent and crewPercent Uncorrelated
 
-**What goes wrong:** The proposed test has two pass thresholds: 20 points if QNZPE is under $100m, 30 points if QNZPE is $100m or above. The most common mistake is hardcoding `passThreshold = 20` or `passThreshold = 30` rather than deriving it from the QNZPE input.
+**What goes wrong:** A project is generated with `shootingNZPercent = 20` (only 20% of principal photography in NZ) but `crewPercent = 92` (92% NZ crew). This is implausible — productions with minimal NZ shoot days do not employ 92% NZ crew. The generated data reveals the generator's independence assumption to any producer reviewing the dataset.
 
-**Why it happens:** The existing test has a single threshold (40 points). Developers mentally model the pass check as a simple `score >= threshold`, and forget to make the proposed test's threshold dynamic.
+**Why it happens:** `shootingNZPercent` and `crewPercent` are assigned in separate sections of the generator (Section B and Section C respectively), with no cross-section dependency tracking. Each section looks internally plausible, but the combination is not.
 
-**Prevention:**
-- The proposed scoring result type explicitly includes `passThreshold: 20 | 30` as a field, derived from QNZPE at calculation time. The component displays this field so the user can see which threshold applies to their project.
-- Unit tests: one project just above $100m QNZPE, one just below.
+**How to avoid:** Establish `shootingNZPercent` as a primary signal in the generator's first pass. Use it to set a baseline expectation for crew and cast percentages: if `shootingNZPercent < 50`, draw `crewPercent` from a lower range (60-75%) and `castPercent` from a lower range (70-80%). If `shootingNZPercent >= 75`, allow `crewPercent` in the 80-95% range. The test constraint `crewPercent >= 80 for at least 40 projects` must be preserved — so most projects need high shooting NZ percentages by design.
 
 **Warning signs:**
-- `const PROPOSED_PASS_THRESHOLD = 20` as a constant anywhere in the codebase
-- The pass check for proposed is not reading from the QNZPE input
+- Projects with `shootingNZPercent < 60` and `crewPercent > 85`
+- `crewPercent` values that do not co-vary with `shootingNZPercent` in any visible pattern
 
-**Phase:** Address in Phase 1 (scoring engine).
+**Phase to address:** Phase 1 (generation logic).
 
 ---
 
-### Pitfall 9: Form Validation Blocking Score Display
+### Pitfall 9: Project Names Accidentally Use Real Titles or Trademarks
 
-**What goes wrong:** The app applies strict form validation — "you must enter a value for every field before we calculate" — meaning users can't see scores until every input is filled. This kills the exploratory use case: "what happens if I enter just the VFX percentage, what does that get me?" Policy stakeholders want to explore, not submit completed forms.
+**What goes wrong:** The name generator produces "Shadow Protocol" — which is a real NZ production. Or it produces "Glitch" — which is a Netflix series. Or it produces names that sound like they could be real NZ franchises ("The Dark Tower NZ", "Pacific Protocol"). The PROJECT.md explicitly forbids real NZ names or real franchises for legal risk reasons.
 
-**Why it happens:** React Hook Form's default model is "validate on submit." Pairing with Zod encourages a "all-or-nothing" validation schema. The developer treats the form like a data-collection form rather than a calculator.
+**Why it happens:** Generic thriller/sci-fi/drama vocabulary (Shadow, Protocol, Echo, Void, Crimson, Horizon) overlaps heavily with real titles. With 50 names to generate, probability of collision is non-trivial. The current v1.0 seed data already uses names like "Shattered Horizon" and "The Ashen Protocol" that walk close to genre conventions.
 
-**Prevention:**
-- Treat all inputs as optional with sensible defaults (zero). Missing inputs score zero points for that criterion.
-- Show scores in real time as inputs change. The score is always visible — it's just zero for uncompleted sections.
-- Validation should only prevent saving (if saving is destructive) or flag impossible values (e.g. a percentage over 100), not block score display.
-- Use `watch()` from React Hook Form to derive live scores without waiting for submission.
+**How to avoid:** Build a name generation system using combinatorial structures that are demonstrably fictional: two-word combinations from curated word lists (abstract nouns + geological features, colour terms + theoretical concepts, verb forms + celestial objects). Before committing the final 50 names, run each through a web search (or note in a comment that it was manually checked). Avoid: "The [Adjective] Protocol", "Operation [Noun]", "[Colour] [Thing]" — these patterns produce too many real-title collisions. Preferred: three-word combinations that sound cinematic but specific enough to be unique.
 
 **Warning signs:**
-- `onSubmit` handler being where scores are first calculated
-- "Form is invalid, please complete all fields" error blocking the results panel
+- Any project name matching a real film or TV title (check against IMDB)
+- Names using "Protocol", "Shadow", "Ghost", "Signal" without other distinguishing words
+- All 50 names following the same two-word pattern
 
-**Phase:** Address in Phase 2 (form + results architecture).
-
----
-
-### Pitfall 10: Seed Data Realism Rules Are Not Enforceable at Runtime
-
-**What goes wrong:** The seed data requirements are specific and interrelated: "big budget = low qualifying persons", "most projects reach 80% on C2 especially smaller ones", "Section E rare and for big budgets". These are hard to manually verify across 50 records. Seed data is hand-crafted and many of the realism constraints are violated, but nobody checks.
-
-**Why it happens:** With 50 records and complex constraints, manual verification is tedious. The developer creates data that looks plausible but doesn't satisfy all constraints.
-
-**Prevention:**
-- Write a seed data validator that runs the scoring engine on all 50 seed projects and checks: exactly 25 pass existing, exactly 25 fail existing; all have QNZPE > $20m; all 50 pass the QNZPE test for the proposed system's lower threshold; none have C3/C10 scores under the existing system; A1 is present in all.
-- Run this validator as part of development (not a production concern) every time seed data changes.
-- Generate seed data programmatically with constrained random values rather than hand-crafting 50 JSON objects.
-
-**Warning signs:**
-- Seed data as a single large JSON file with no generation script
-- No automated check that seed data satisfies the distribution requirements
-
-**Phase:** Address in Phase 3 (seed data generation).
+**Phase to address:** Phase 1 (name generation) with a manual review step before committing.
 
 ---
 
-### Pitfall 11: SheetJS Bundle Weight Loaded Eagerly
+## Technical Debt Patterns
 
-**What goes wrong:** SheetJS (`xlsx`) is a 400kb+ minified library. If imported at the top of a file that loads on app startup, it adds 400kb to the initial bundle. Since Excel export is an infrequent action, this is pure waste.
-
-**Why it happens:** `import * as XLSX from 'xlsx'` at the top of the export component, which loads on first render.
-
-**Prevention:**
-- Use dynamic import: `const XLSX = await import('xlsx')` inside the export handler function. Vite handles this as a code-split chunk loaded only when the user triggers export.
-- Confirm with Vite bundle analysis (`npx vite-bundle-visualizer`) that xlsx is not in the main bundle.
-
-**Warning signs:**
-- `import * as XLSX from 'xlsx'` at the top of any component file
-- Initial bundle size exceeding 400kb
-
-**Phase:** Address in Phase 4 (export feature).
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Hard-code 50 project objects as TypeScript literal | No generation script needed | Cannot be regenerated; constraints are invisible; next-milestone updates require touching 50 objects manually | Never — a generation script is essential for a v1.1 milestone |
+| Use `Math.random()` without seed | Simple to write | Non-deterministic test failures; screenshots drift; impossible to reproduce bugs | Never for static seed data |
+| Score projects after generation and discard failures (rejection sampling) | Simple logic | Generator is slow; final distribution is unknown until run; hard cap artifacts | Acceptable for low-rejection-rate fields; not acceptable for pass rate targeting |
+| Copy v1.0 seed data and change 20 records | Fast to ship | Distribution constraints not satisfied; still hand-crafted; doesn't address any v1.1 goal | Never |
+| Generate all fields independently (no correlations) | Easiest to implement | Plausibility fails immediately on inspection by a domain expert | Never for this domain — producers will notice |
 
 ---
 
-## Minor Pitfalls
+## Integration Gotchas
 
-Mistakes that create friction or minor correctness issues.
-
----
-
-### Pitfall 12: Percentage Inputs Accept Impossible Values Without Warning
-
-**What goes wrong:** A user enters 110 for "% NZ crew". The scoring engine clamps at 100% or caps point awards, but the stored input is 110. The displayed percentage looks wrong. Or the user enters a decimal (0.8 intending 80%) and the threshold comparison treats it as 0.8%.
-
-**Prevention:**
-- Validate inputs as `min: 0, max: 100` for percentage fields, with immediate inline feedback (not blocking).
-- Display the input units clearly ("Enter as a whole number, e.g. 80 for 80%").
-- Normalise on blur: if the user enters 0.8 in a percentage field, prompt "Did you mean 80%?"
-
-**Phase:** Address in Phase 2 (form field components).
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Existing `seedProjects.test.ts` | Adding new constraints without re-reading the full existing assertion list | Read every test assertion before writing the generator; build a constraint matrix |
+| `scoreExisting()` / `scoreProposed()` | Calling the scoring engine during generation with stale imports or wrong types | Import directly from `src/scoring/index.ts`; verify TypeScript types at generation time |
+| `createdAt` timestamps in seed data | Using `new Date().toISOString()` which varies per run | Hardcode a stable date (`2026-01-01T00:00:00.000Z`) for all seed projects |
+| localStorage schema version | Regenerated seed data with different field values triggering a migration | No structural change — same `ProjectInputs` fields, just different values; no schema version bump needed |
+| `SEED_PROJECTS` export | Generation script writing to a `.ts` file with wrong formatting | Use a template string with consistent indentation; run `npm run lint` after generation |
 
 ---
 
-### Pitfall 13: Project List Performance Degrades If localStorage Grows Large
+## Performance Traps
 
-**What goes wrong:** 50 seed projects plus user-created projects, each with full input objects, could stress localStorage reads on every render. The summary screen renders all projects simultaneously, recalculating scores for each on every render.
-
-**Why it happens:** 50 records is well within localStorage's 5MB limit (each project JSON is small — well under 5KB), but score recalculation for 50 projects on every summary screen render could cause perceptible lag on low-end devices.
-
-**Prevention:**
-- `useMemo` on the scored project list in the summary screen, keyed to the projects array.
-- 50 records is not a virtualization concern — do not over-engineer with react-window.
-- Measure actual performance before optimising. Likely a non-issue with 50 records and fast pure functions.
-
-**Phase:** Address in Phase 2 (summary screen) if performance is observed during development.
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Rejection sampling with high rejection rate | Generator runs for seconds or loops indefinitely | Keep acceptance rates above 50% for all constraints; prefer profile-based generation | If pass rate target is tight and inputs are not structured toward it |
+| Scoring all 50 projects in a test loop with full engine | Test suite slows measurably | Not a real risk — `scoreExisting` is a pure function on a small object; 50 calls is negligible | Never at this scale |
+| Running generation script in the browser | Production bundle includes generation code | Keep the generator as a Node.js script in `scripts/`; it never ships to the client | If generator is imported into src/ accidentally |
 
 ---
 
-### Pitfall 14: "Associated Content" Window Extension Silently Ignored
+## "Looks Done But Isn't" Checklist
 
-**What goes wrong:** The proposed test extends the associated content window from 3 to 5 years. This may affect whether certain historical productions are counted as associated content. If the form asks for "associated content count" as a raw number, users might enter different numbers for existing vs. proposed depending on which years they're counting. The form doesn't guide this.
-
-**Prevention:**
-- For any criterion where the proposed test changes a time window or eligibility definition compared to the existing test, add a contextual note in the UI explaining the difference. Help text: "Under the proposed test, content from the past 5 years counts (vs 3 years under the existing test)."
-- Do not attempt to calculate this automatically — the user knows which of their productions qualify under each window. Expose the input clearly.
-
-**Phase:** Address in Phase 2 (form UI and help text).
+- [ ] **Pass rate:** 60% pass rate means exactly 30 projects. Verify with `SEED_PROJECTS.filter(p => scoreExisting(p.inputs).passed).length === 30` (or 28-30 to stay within the 20-30 test window)
+- [ ] **Passes-existing-fails-proposed:** Run `SEED_PROJECTS.some(p => scoreExisting(p.inputs).passed && !scoreProposed(p.inputs).passed)` — must be true
+- [ ] **Borderline projects:** `SEED_PROJECTS.filter(p => { const r = scoreExisting(p.inputs); return r.totalPoints >= 38 && r.totalPoints <= 42; }).length >= 5` — must be true
+- [ ] **BTL correlation:** No project has `btlAdditionalCount > 4 && btlKeyCount < 2`
+- [ ] **Post-production bimodal:** Score distribution of `picturePostPercent` shows two clusters, not a uniform band — visually inspect a sorted list
+- [ ] **Crew/shooting correlation:** No project has `shootingNZPercent < 60 && crewPercent > 85`
+- [ ] **Section E gating:** All projects with `hasKnowledgeTransfer || commercialAgreementPercent > 0 || infrastructureInvestment > 0` have `qnzpe >= 100_000_000`
+- [ ] **Determinism:** Run the generator twice without code changes — output file diff is empty
+- [ ] **Soft cap:** At least one project has `existingScore > 55` (cap is soft, not hard)
+- [ ] **No real title collisions:** All 50 project names have been manually verified against real productions
+- [ ] **Full test suite passes:** `npm test` exits zero after regeneration
 
 ---
 
-## Phase-Specific Warnings
+## Recovery Strategies
 
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Scoring engine implementation | Misread spec, tiered vs cumulative, wrong pass threshold | Pre-code spec doc + unit tests before UI |
-| Data model design | Stored derived state, shared inputs duplicated | Model inputs only; single ProjectInputs type |
-| Form architecture | Validation blocking live scores, shared field divergence | Calculate on watch(), single form state |
-| Seed data generation | Distribution constraints violated, no validator | Generation script + automated constraint check |
-| localStorage setup | Schema changes break data, no migration | Schema version from day one |
-| Excel export | SheetJS in main bundle | Dynamic import in export handler |
-| Summary screen | Score recalculation on every render | useMemo on scored list |
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| BTL correlation missing | LOW | Add conditional draw for `btlAdditionalCount`; regenerate |
+| Post-production fields all uniform | LOW | Split into two groups; regenerate |
+| Hard cap artifact visible in distribution | MEDIUM | Replace hard reject with probability weighting; regenerate; recheck all test assertions |
+| No passes-existing-fails-proposed scenario | LOW | Add one explicit Section-E-heavy project profile; regenerate |
+| Test suite breaks on regeneration | MEDIUM | Audit constraint matrix; adjust generator parameters (not the tests); regenerate |
+| Non-deterministic generation | LOW | Add seeded PRNG before any other fix; regenerate once to establish baseline |
+| Real title collision in names | LOW | Replace the colliding name(s); no regeneration of inputs needed |
+| Pass rate drifted (27 or 33 passing) | MEDIUM | Adjust the ratio of engaged vs. low-engagement project profiles; regenerate; rerun tests |
+
+---
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| BTL correlation | Phase 1: Generator design | Manual inspection + no project fails the BTL correlation check |
+| Post-production bimodal | Phase 1: Generator design | Visual inspection of sorted `picturePostPercent` values |
+| Score soft cap — hard rejection artifact | Phase 1: Generator design | Histogram of existing scores shows smooth tail above 50 |
+| Pass rate via post-hoc manipulation | Phase 1: Profile-based architecture | Generator audit — no field modified after initial draw |
+| Passes-existing-fails-proposed missing | Phase 1: Include Section-E-heavy profile; Phase 2: Verify | `SEED_PROJECTS.some(p => scoreExisting(p.inputs).passed && !scoreProposed(p.inputs).passed)` |
+| Existing test assertions broken | Phase 1: Constraint matrix; Phase 2: Full test run | `npm test` exits zero |
+| Determinism | Phase 1: Seeded PRNG foundation | Two generator runs produce identical output |
+| shooting/crew correlation | Phase 1: Generator design | No projects with `shootingNZPercent < 60 && crewPercent > 85` |
+| Project name collisions | Phase 1: Name generation + manual review | All 50 names verified against real productions |
 
 ---
 
 ## Sources
 
-- React derived state anti-pattern: https://medium.com/@dreamerkumar/stop-using-useeffect-for-derived-state-a-react-anti-pattern-thats-killing-your-app-s-performance-8dcb83b48805
-- React official: You Probably Don't Need Derived State: https://legacy.reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
-- JavaScript floating-point precision: https://www.xjavascript.com/blog/how-can-i-deal-with-floating-point-number-precision-in-javascript/
-- localStorage schema versioning: https://blog.logrocket.com/persist-state-redux-persist-redux-toolkit-react/ (migration patterns)
-- localStorage limits and performance: https://rxdb.info/articles/localstorage.html
-- SheetJS bundle size: https://dev.to/jasurkurbanov/how-to-export-data-to-excel-from-api-using-reactjs-incl-custom-headers-5ded
-- React Hook Form advanced usage: https://react-hook-form.com/advanced-usage
-- Complex form business rules: https://medium.com/akeneo-labs/how-we-used-the-react-hook-forms-for-the-rules-engine-fd32337b5460
-- State management for forms: https://prateeksurana.me/blog/why-you-should-avoid-using-state-for-computed-properties/
+- Existing test assertions: `src/data/__tests__/seedProjects.test.ts` (direct inspection)
+- Existing scoring engine: `src/scoring/scoreExisting.ts`, `src/scoring/scoreProposed.ts` (direct inspection)
+- Scoring spec: `src/scoring/spec.ts` — all threshold values used in pitfall analysis
+- v1.1 requirements: `.planning/PROJECT.md` (Target features for Realistic Seed Data milestone)
+- v1.0 seed data (hand-crafted pattern): `src/data/seedProjects.ts` (first 200 lines)
+- Seeded PRNG patterns: mulberry32 / sfc32 are well-documented zero-dependency algorithms (4-12 lines each); no external source needed
+- Rejection sampling failure modes: standard probabilistic data generation knowledge — no specific citation, HIGH confidence
+
+---
+
+*Pitfalls research for: probabilistic seed data generation added to existing scoring/comparison system*
+*Researched: 2026-03-14*

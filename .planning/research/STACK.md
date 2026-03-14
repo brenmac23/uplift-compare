@@ -1,191 +1,186 @@
-# Technology Stack
+# Stack Research
 
-**Project:** Uplift Compare — NZ Screen Production Rebate scoring tool
-**Researched:** 2026-03-13
-**Confidence:** HIGH (all recommendations verified against official docs or npm registry)
+**Domain:** Probabilistic seed data generation — TypeScript/browser, no backend
+**Researched:** 2026-03-14
+**Confidence:** HIGH
+
+---
+
+## Verdict: Zero New Dependencies
+
+The v1.1 seed data task requires no new npm packages. Every required capability — seeded PRNG, normal distribution sampling, bimodal mixing, budget-correlated fields — is implementable in pure TypeScript with ~80–120 lines of utility code. Adding a library for this would increase bundle size, introduce a maintenance surface, and solve a problem that doesn't exist.
+
+The existing stack already provides everything needed:
+- TypeScript for type-safe generator functions
+- Vitest for distribution verification tests
+- The existing `Project` type and `scoreExisting` / `scoreProposed` functions as integration points
 
 ---
 
 ## Recommended Stack
 
-### Core Framework
+### Core Technologies (unchanged — already in project)
 
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| React | 19.2.x | UI rendering | Latest stable; React 19 ships with improved form handling via Actions, better Suspense, and `useOptimistic`. No breaking API changes for this use case. |
-| Vite | 8.x | Build tool & dev server | Rolldown-powered v8 is the current release; first-party React plugin; near-instant HMR. The `npm create vite@latest` template ships a working React + TS project in seconds. Netlify has native Vite support. |
-| TypeScript | 5.x | Type safety | Ships with the Vite react-ts template. Essential for a scoring engine with many numeric fields — type errors surface at compile time, not runtime. |
+| TypeScript | ~5.9.3 | Generator implementation | Type-safe field definitions, compile-time enforcement of value ranges |
+| Vitest | ^4.1.0 | Distribution verification | Run `scoreExisting` against generated projects to verify ~60% pass rate, bimodal distribution shape, correlation constraints |
 
-### State Management & Persistence
+### New Code to Write (not install)
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Zustand | 5.x | Global state + localStorage persistence | The `persist` middleware (built into Zustand) serialises the entire store to localStorage with one configuration block. No boilerplate, no Context Provider wrapping. At 50 seeded projects plus user-created ones, React Context would cause re-render churn across the comparison views. Zustand's selective subscription model prevents that. |
+| Module | Location | Purpose | Why inline not a library |
+|--------|----------|---------|--------------------------|
+| `seededRng.ts` | `src/data/generator/` | Mulberry32 PRNG returning `() => number` | 8 lines. Gives deterministic output for the same seed — critical for reproducible test snapshots. Libraries like `seedrandom` (3.0.5) add 3kB bundle overhead and DefinitelyTyped dependency for an 8-line function. |
+| `distributions.ts` | `src/data/generator/` | Box-Muller normal, clamp, bimodal mixer, weighted boolean | ~50 lines. Box-Muller is a 6-line standard algorithm; bimodal = two normal calls with a random pick; clamp is one line. No statistical library brings enough additional value to justify its inclusion. |
+| `generateProject.ts` | `src/data/generator/` | Three-tier orchestrator (Fundamentals → Less Fundamental → Point-chasing) | Domain logic that's specific to NZ Screen rebate rules — no generic library would model QNZPE inflection at $50m or the soft ~50pt cap. |
+| `generateSeedProjects.ts` | `src/data/generator/` | Generates the 50-project array, calls `generateProject` 50 times with different seeds | Entry point; replace the hand-crafted `SEED_PROJECTS` array with a `generateSeedProjects()` call |
 
-**Why not React Context:** No built-in persistence means manually wiring `useEffect` + `JSON.stringify` everywhere. Context also re-renders all subscribers on any state change — problematic with a large project list and live score recalculation.
+---
 
-**Why not Redux Toolkit:** RTK's pattern is appropriate for team-scale apps. This is a single-developer static tool; Zustand delivers 80% of the value at 20% of the ceremony.
+## Supporting Libraries — Considered and Rejected
 
-### Forms
+| Library | Version | What It Provides | Why Not |
+|---------|---------|-----------------|---------|
+| `d3-random` | 3.x | `randomNormal(mu, sigma)`, `randomUniform()`, `randomLogNormal()` | Would add the full d3-random module (~20kB) for two functions. Box-Muller in vanilla JS is 6 lines. No bimodal support — you'd compose two normals manually anyway. |
+| `seedrandom` | 3.0.5 | Seeded PRNG, browser-compatible, no eval (CSP-safe since 3.0.5) | 3kB for functionality replaceable with 8 lines of Mulberry32. Adds `@types/seedrandom` as a separate devDep. Fine for large projects; overkill here. |
+| `simple-statistics` | 7.8.8 | Full stats library: distributions, regression, clustering | 316 dependents; good library. But the relevant functions (normal CDF, sample) are not what's needed — the task is _generating_ values, not _analyzing_ them. Bundle cost is not justified. |
+| `prando` | latest | TypeScript-native seeded PRNG, deterministic | Well-made but inactive (last release 2021). Mulberry32 inline is simpler and has no maintenance dependency. |
+| `@stdlib/random-base-box-muller` | 0.2.x | Box-Muller implementation as standalone module | Brings in the wider `@stdlib` ecosystem as a transitive dependency. For 6 lines of math, this is not acceptable. |
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| React Hook Form | 7.71.x | Form state, validation wiring | Actively maintained (published 20 days ago as of research date). Uncontrolled-by-default — no re-render on every keystroke, which matters when a form triggers live dual-system score recalculation. Smaller bundle (27.9kB) than Formik (44.7kB). Formik is effectively unmaintained (last commit ~1 year ago). |
-| Zod | 4.x | Schema validation | Integrates directly with React Hook Form via `@hookform/resolvers/zod`. Declares field constraints as TypeScript types simultaneously — a percentage field declared `z.number().min(0).max(100)` is both a runtime validator and a compile-time type. |
-| @hookform/resolvers | latest | Bridge between RHF and Zod | Official resolver package; required for Zod integration. |
+---
 
-### UI Components & Styling
+## What NOT to Use
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Tailwind CSS | 4.x | Utility-first styling | v4 released January 2025; first-party Vite plugin (`@tailwindcss/vite`) replaces the old PostCSS setup — one plugin import, no config file, no content globs. Full builds up to 5x faster than v3. Light-theme aesthetics are straightforward with Tailwind's neutral/slate palette. |
-| shadcn/ui | CLI v4 (March 2026) | Component primitives | The standard for Tailwind + React component libraries. Components are copied into your repo (you own them), so there is no runtime dependency lock-in. Covers every UI primitive this project needs: Input, Select, Table, Card, Badge, Button, Dialog. Uses Radix UI primitives under the hood for accessibility. CLI v4 is the current release. |
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `faker.js` / `@faker-js/faker` | Faker generates _surface-realistic_ strings and random values with no domain model. It cannot model QNZPE-correlated BTL crew counts or the three-tier scoring logic. Bundle is ~2MB. | Custom generator with domain knowledge |
+| Any stats library (simple-statistics, jStat, ml-stat) | Generating 50 data points does not require a full statistics library. The only math needed is Box-Muller (normal sampling) and linear interpolation for budget-correlated scoring — both inline in 10 lines each. | Inline implementations in `distributions.ts` |
+| Full `d3` bundle | Already in scope rejection — importing `d3-random` risks pulling in tree-shaking-unfriendly d3 internals depending on bundler config | `d3-random` standalone if a d3 sub-package were ever justified, but in this case still not needed |
+| Any database seeding library (drizzle-seed, Prisma seed) | Those tools seed SQL databases from schemas. This project uses in-memory static TypeScript arrays — the concepts don't transfer. | Static `Project[]` array generated at build time |
 
-**Why not MUI:** Heavy bundle, opinionated Material Design aesthetic that fights against custom light-theme designs. Tailwind overrides in MUI are painful.
+---
 
-**Why not Ant Design:** Same problem — strong pre-baked visual identity, difficult to customise to a clean aesthetic without fighting the library.
+## Implementation Pattern
 
-**Note on Radix UI maintenance:** Search results surfaced a claim that Radix UI is not being actively maintained. However, shadcn/ui CLI v4 (released March 2026) continues to ship components using Radix primitives, and the shadcn team is actively exploring Base UI as a future alternative. For this project's scope and timeline, Radix-based shadcn/ui is fine.
+The generator should use a functional, seeded-PRNG-threaded approach:
 
-### Data Tables
+```typescript
+// seededRng.ts — Mulberry32, well-known algorithm
+export function mulberry32(seed: number): () => number {
+  return function () {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+```
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| TanStack Table | 8.21.x | Summary screen project table | Headless — no style opinions, works directly with Tailwind/shadcn. Handles sorting, filtering, and column visibility. For 50–200 projects (seed data + user additions), client-side processing is trivial. The summary screen needs sortable columns (pass/fail status, project name, QNZPE amount) and that is exactly the TanStack Table sweet spot. |
+```typescript
+// distributions.ts — Box-Muller, clamped normal, bimodal
+export function normalSample(rng: () => number, mu: number, sigma: number): number {
+  // Box-Muller transform
+  const u1 = Math.max(rng(), 1e-10); // avoid log(0)
+  const u2 = rng();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  return mu + sigma * z;
+}
 
-**Why not a pre-styled grid like AG Grid:** Overkill bundle, fights the custom design. TanStack Table with shadcn table components is the idiomatic 2026 pattern.
+export function clampedNormal(
+  rng: () => number,
+  mu: number,
+  sigma: number,
+  min: number,
+  max: number
+): number {
+  return Math.min(max, Math.max(min, normalSample(rng, mu, sigma)));
+}
 
-### Excel Export
+export function bimodalSample(
+  rng: () => number,
+  mu1: number, sigma1: number,
+  mu2: number, sigma2: number,
+  weight1 = 0.5 // probability of drawing from first mode
+): number {
+  return rng() < weight1
+    ? normalSample(rng, mu1, sigma1)
+    : normalSample(rng, mu2, sigma2);
+}
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| ExcelJS | 4.4.0 | Generate .xlsx files in browser | Despite the last npm publish being 2023, ExcelJS has 4.1M weekly downloads and is widely used in production browser contexts. It supports `writeBuffer()` for in-browser generation without a server. Offers cell styling (bold headers, column widths, number formats) that pure SheetJS CE does not provide in the free tier. |
-| file-saver | 2.x | Trigger browser download | Standard companion to ExcelJS for browser-side file downloads. Small, stable, no dependencies. |
+export function weightedBool(rng: () => number, probability: number): boolean {
+  return rng() < probability;
+}
+```
 
-**Why not SheetJS (xlsx) from npm:** The npm registry package is frozen at version 0.18.5. SheetJS moved distribution to its own CDN (cdn.sheetjs.com), creating installation friction and supply chain uncertainty. Known CVEs include prototype pollution (CVE-2023-30533) and zip slip (CVE-2024-22363). Not appropriate for a greenfield project.
+```typescript
+// Budget-correlated talent scoring example
+// QNZPE inflection at $50m: small productions rarely attract A-list international cast
+function castPercent(rng: () => number, qnzpe: number): number {
+  const isLargeBudget = qnzpe >= 50_000_000;
+  return isLargeBudget
+    ? clampedNormal(rng, 72, 8, 50, 100)   // large: higher NZ cast % expected
+    : clampedNormal(rng, 85, 6, 60, 100);  // small: NZ talent dominates
+}
+```
 
-**Why not write-excel-file:** Very lightweight and browser-native, but limited styling options. For a professional-looking export with proper column headers and data types, ExcelJS gives more control.
+### Correlation Without a Library
 
-**Mitigation for ExcelJS bundle size:** Use dynamic import (`const ExcelJS = await import('exceljs')`) so the ~700kB library only loads when the user clicks "Export". This keeps initial load fast.
+Budget-correlated fields use conditional distributions, not Cholesky decomposition. For this domain:
 
-### Routing
+- **Conditional branching**: `if (qnzpe >= 50_000_000)` draw from different mu/sigma
+- **Derived fields**: `btlAdditionalCount = Math.round(btlKeyCount * rng() * 2 + 1)` — BTL additional is a function of BTL key
+- **Score-targeting loop**: generate fields, score, if score is outside desired range adjust one parameter and re-score (simple hill-climbing, no optimization library needed)
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| React Router | 7.x | Client-side routing | v7 declarative mode is the lightest footprint for a SPA with no backend. The app has two main routes: `/` (summary) and `/project/:id` (detail). In v7, you import from `react-router` (not `react-router-dom`; the latter re-exports the former). |
+This is the standard approach for domain-specific synthetic data generation where correlations are domain rules, not statistical co-variance matrices.
 
-**Why not hash routing:** Clean URL routing works fine on Netlify — add a `_redirects` file (`/* /index.html 200`) and all routes resolve correctly as a SPA.
+---
 
-### Deployment
+## Integration Points
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Netlify | — | Static site hosting | Specified in requirements. Vite outputs to `dist/`. Build command: `npm run build`. Publish directory: `dist`. Netlify auto-detects Vite projects. Add `public/_redirects` with `/* /index.html 200` for SPA routing. No backend, no serverless functions needed. |
+| Existing Code | How Generator Connects |
+|---------------|----------------------|
+| `src/store/useAppStore.ts` — `Project` type | Generator output type must satisfy `Project`. Import and return `Project[]`. |
+| `src/scoring/index.ts` — `scoreExisting`, `scoreProposed` | Call both inside generator's verification step to hit ~60% pass rate target. |
+| `src/data/seedProjects.ts` | Replace hand-crafted array export with: `export const SEED_PROJECTS = generateSeedProjects()` |
+| `src/data/__tests__/seedProjects.test.ts` | Existing distribution tests (60 pass rate, bimodal check, budget tiers) run unchanged against generated output — this is the acceptance criterion |
+
+---
+
+## Version Compatibility
+
+No new dependencies means no new compatibility concerns. The existing stack already works together.
+
+| Concern | Status |
+|---------|--------|
+| TypeScript strict mode | Inline math functions are trivially typeable — all inputs/outputs are `number` or `boolean` |
+| Vitest tree-shaking | No new modules to shake; generator runs at module load time |
+| Netlify static build | Generator runs at build time or module import; no runtime network calls |
+| Bundle size impact | ~0kB added to production bundle (pure TS, no new deps) |
 
 ---
 
 ## Alternatives Considered
 
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| Build tool | Vite 8 | Create React App | CRA is deprecated and unmaintained |
-| Forms | React Hook Form | Formik | Formik last committed ~1 year ago; unmaintained |
-| State | Zustand | React Context | No built-in persistence; re-render churn |
-| State | Zustand | Redux Toolkit | Excessive ceremony for single-developer static tool |
-| UI | shadcn/ui + Tailwind | MUI | MUI aesthetic fights custom light theme design |
-| UI | shadcn/ui + Tailwind | Ant Design | Same as MUI; strong pre-baked visual identity |
-| Tables | TanStack Table | AG Grid | Overkill; style opinions conflict with Tailwind |
-| Excel | ExcelJS | SheetJS (npm) | npm package frozen at 0.18.5; CVE history; CDN distribution friction |
-| Excel | ExcelJS | write-excel-file | Limited cell styling options for professional output |
-| Validation | Zod | Yup | Zod 4.x has better TypeScript inference and is more actively maintained |
-
----
-
-## Installation
-
-```bash
-# Scaffold project
-npm create vite@latest uplift-compare -- --template react-ts
-cd uplift-compare
-
-# Tailwind CSS v4 (Vite plugin, no config file needed)
-npm install tailwindcss @tailwindcss/vite
-
-# shadcn/ui (follow CLI prompts)
-npx shadcn@latest init
-
-# Forms + validation
-npm install react-hook-form zod @hookform/resolvers
-
-# State management
-npm install zustand
-
-# Routing
-npm install react-router
-
-# Tables
-npm install @tanstack/react-table
-
-# Excel export
-npm install exceljs file-saver
-npm install -D @types/file-saver
-```
-
-**vite.config.ts additions:**
-```typescript
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-})
-```
-
-**index.css (Tailwind v4 — single import, no directives):**
-```css
-@import "tailwindcss";
-```
-
-**Netlify SPA routing (public/_redirects):**
-```
-/* /index.html 200
-```
-
----
-
-## Confidence Assessment
-
-| Decision | Confidence | Basis |
-|----------|------------|-------|
-| React 19.2.x | HIGH | Official react.dev versions page, npm registry |
-| Vite 8.x | HIGH | Official vite.dev releases page |
-| Tailwind CSS v4 | HIGH | Official tailwindcss.com, multiple Vite integration guides |
-| shadcn/ui CLI v4 | HIGH | Official ui.shadcn.com changelog, March 2026 release confirmed |
-| React Hook Form 7.71.x | HIGH | npm registry, GitHub releases; Formik deprecation confirmed by multiple sources |
-| Zod 4.x | HIGH | npm registry, zod.dev |
-| Zustand 5.x | HIGH | npm registry, GitHub |
-| TanStack Table 8.21.x | HIGH | npm registry, tanstack.com docs |
-| ExcelJS 4.4.0 | MEDIUM | npm package exists, widely used, but last published 2023; no known CVEs; maintenance uncertain |
-| React Router 7.x | HIGH | Official reactrouter.com docs, confirmed SPA mode support |
-| Netlify + Vite | HIGH | Official Netlify docs, Vite static deploy guide |
-
-**Overall stack confidence: HIGH.** All core libraries are current, actively maintained, and verified against official sources. The only MEDIUM confidence item is ExcelJS — acceptable risk given 4.1M weekly downloads and no known security CVEs, mitigated by dynamic import to isolate it.
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| Inline Mulberry32 | `seedrandom` library | If the project already had `seedrandom` or needed cryptographic-quality randomness |
+| Inline Box-Muller | `d3-random` | If the project already imported d3 for visualization — then use the existing dep, don't duplicate |
+| Conditional distributions | Cholesky copula correlation | If you needed precise statistical correlation coefficients across 10+ fields simultaneously — overkill for 6 correlated fields with known domain rules |
+| Score-targeting loop | Analytical field computation | Analytical is faster but requires solving the scoring function in reverse; loop is simple, fast enough for 50 projects |
 
 ---
 
 ## Sources
 
-- React versions: https://react.dev/versions
-- Vite 8 release: https://voidzero.dev/posts/announcing-vite-8-beta
-- Tailwind CSS v4: https://tailwindcss.com/blog/tailwindcss-v4
-- shadcn/ui changelog: https://ui.shadcn.com/docs/changelog
-- React Hook Form npm: https://www.npmjs.com/package/react-hook-form
-- Zod npm: https://www.npmjs.com/package/zod
-- Zustand GitHub: https://github.com/pmndrs/zustand
-- TanStack Table npm: https://www.npmjs.com/package/@tanstack/react-table
-- ExcelJS npm: https://www.npmjs.com/package/exceljs
-- SheetJS CVE: https://security.snyk.io/vuln/SNYK-JS-XLSX-5457926
-- SheetJS npm freeze issue: https://github.com/SheetJS/sheetjs/issues/2667
-- React Router v7 SPA: https://reactrouter.com/how-to/spa
-- Netlify + Vite: https://docs.netlify.com/build/frameworks/framework-setup-guides/vite/
+- Mulberry32 algorithm: [cprosche/mulberry32 GitHub](https://github.com/cprosche/mulberry32) — 32-bit state PRNG, passes statistical tests, 8-line implementation
+- Box-Muller transform: [Wikipedia — Box-Muller transform](https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform) — standard algorithm, no IP concerns
+- d3-random npm: [npmjs.com/package/d3-random](https://www.npmjs.com/package/d3-random) — reviewed and rejected (overkill)
+- simple-statistics npm: [npmjs.com/package/simple-statistics](https://www.npmjs.com/package/simple-statistics) — reviewed and rejected (analysis library, not generation)
+- seedrandom npm: [npmjs.com/package/seedrandom](https://www.npmjs.com/package/seedrandom) — reviewed and rejected (inline is sufficient)
+- Correlated random variables (general): [Open Risk Manual](https://www.openriskmanual.org/wiki/How_to_Generate_Correlated_Random_Numbers) — Cholesky approach documented; overkill for conditional-distribution pattern
+
+---
+
+*Stack research for: Uplift Compare v1.1 — Realistic seed data generation*
+*Researched: 2026-03-14*
