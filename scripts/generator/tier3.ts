@@ -74,7 +74,7 @@ export type Tier3Fields = {
 const SELECTION_PROBS: Record<'cheap' | 'medium' | 'expensive', number> = {
   cheap:     0.85,
   medium:    0.55,
-  expensive: 0.40,
+  expensive: 0.10,
 };
 
 /** Ambition target value array — index maps from weightedSelect() result. */

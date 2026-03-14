@@ -51,8 +51,8 @@ export const POST_PRODUCTION_CONFIG = {
 /** Shooting/crew co-variance thresholds: higher shootingNZPercent correlates with higher crewPercent pass rate. */
 export const B4_C2_COVARIANCE = {
   highShootingThreshold:    75,
-  highShootingCrewPassProb: 0.88,
-  lowShootingCrewPassProb:  0.35,
+  highShootingCrewPassProb: 0.95,
+  lowShootingCrewPassProb:  0.65,
 };
 
 /** BTL crew shaping rules for C5 (btlKeyCount) and C6 (btlAdditionalCount). Hard constraint: C6 >= C5. */
