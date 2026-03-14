@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Realistic Seed Data
-status: active
-stopped_at: null
-last_updated: "2026-03-14T00:00:00.000Z"
-last_activity: 2026-03-14 — Roadmap created for v1.1 (3 phases, 17 requirements mapped)
+status: planning
+stopped_at: Completed 05-generator-infrastructure-01-PLAN.md
+last_updated: "2026-03-14T06:42:58.362Z"
+last_activity: 2026-03-14 — Roadmap created, 17 requirements mapped across phases 5-7
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -46,6 +46,7 @@ Progress: [░░░░░░░░░░] 0%
 | — | — | — | — |
 
 *Updated after each plan completion*
+| Phase 05-generator-infrastructure P01 | 5min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -56,6 +57,9 @@ All v1.0 decisions archived — see milestones/v1.0-ROADMAP.md for full history.
 
 - [v1.1 roadmap]: 3-phase structure (Generator Infrastructure → Tiered Field Logic → Distribution Targets) — coarse granularity, strict dependency order enforced by module architecture
 - [v1.1 roadmap]: Target 28-30 passing projects (not exactly 30) to stay inside existing test's 20-30 window while hitting ~60% goal
+- [Phase 05-generator-infrastructure]: Mulberry32 PRNG with SEED=0xDEADBEEF — zero-dep factory closure, deterministic sequences
+- [Phase 05-generator-infrastructure]: Tier weights small=25%/mid=25%/large=30%/tentpole=20% — ~50% at $100m+ to satisfy 20-30 test window
+- [Phase 05-generator-infrastructure]: Triangular distribution for QNZPE clustering — simple inverse CDF, no dependency
 
 ### Pending Todos
 
@@ -68,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14
-Stopped at: Roadmap created — Phase 5 ready to plan
+Last session: 2026-03-14T06:42:58.360Z
+Stopped at: Completed 05-generator-infrastructure-01-PLAN.md
 Resume file: None

@@ -37,7 +37,7 @@
   3. The app loads and displays projects after seed regeneration — no TypeScript compile errors
   4. Every project has a unique creative fictional name drawn from a curated pool
   5. The generator prints a distribution summary to stdout after each run
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 05-01-PLAN.md — Generator types, PRNG, project names, budget tiers, correlations stub
 - [ ] 05-02-PLAN.md — generateProject(), entry point, distribution report, npm run seed
@@ -74,6 +74,6 @@ Plans:
 | 2. Data Layer | v1.0 | 3/3 | Complete | 2026-03-13 |
 | 3. Core UI | v1.0 | 4/4 | Complete | 2026-03-13 |
 | 4. Export and Polish | v1.0 | 2/2 | Complete | 2026-03-13 |
-| 5. Generator Infrastructure | v1.1 | 0/2 | Not started | - |
+| 5. Generator Infrastructure | 1/2 | In Progress|  | - |
 | 6. Tiered Field Logic | v1.1 | 0/? | Not started | - |
 | 7. Distribution Targets and Validation | v1.1 | 0/? | Not started | - |

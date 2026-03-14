@@ -9,7 +9,7 @@ Requirements for Realistic Seed Data milestone. Each maps to roadmap phases.
 
 ### Generator Infrastructure
 
-- [ ] **GEN-01**: Generator uses a seeded PRNG for deterministic, reproducible output
+- [x] **GEN-01**: Generator uses a seeded PRNG for deterministic, reproducible output
 - [ ] **GEN-02**: Generator tracks running score after each tier to guide subsequent tier decisions
 - [ ] **GEN-03**: Generator prints validation report (distribution stats, pass rates, score ranges) to stdout
 - [ ] **GEN-04**: Generator outputs static TypeScript file replacing existing seedProjects.ts
@@ -37,7 +37,7 @@ Requirements for Realistic Seed Data milestone. Each maps to roadmap phases.
 
 ### Project Names
 
-- [ ] **NAME-01**: Projects have creative fictional names (no real NZ names or real franchises)
+- [x] **NAME-01**: Projects have creative fictional names (no real NZ names or real franchises)
 
 ## Future Requirements
 
@@ -59,11 +59,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GEN-01 | Phase 5 | Pending |
+| GEN-01 | Phase 5 | Complete |
 | GEN-02 | Phase 5 | Pending |
 | GEN-03 | Phase 5 | Pending |
 | GEN-04 | Phase 5 | Pending |
-| NAME-01 | Phase 5 | Pending |
+| NAME-01 | Phase 5 | Complete |
 | TIER-01 | Phase 6 | Pending |
 | TIER-02 | Phase 6 | Pending |
 | TIER-03 | Phase 6 | Pending |
