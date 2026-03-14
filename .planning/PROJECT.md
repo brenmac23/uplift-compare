@@ -31,7 +31,19 @@ Instant, accurate side-by-side comparison of how a production fares under both t
 
 ### Active
 
-(None — define with `/gsd:new-milestone`)
+## Current Milestone: v1.1 Realistic Seed Data
+
+**Goal:** Regenerate 50 seeded projects with production-realistic logic that follows how a line producer actually works through the uplift test.
+
+**Target features:**
+- Three-tier generation order (Fundamentals → Less Fundamental → Point-chasing)
+- Budget-correlated talent scoring (QNZPE inflection ~$50m)
+- Realistic post-production distributions (bimodal picture/sound, random VFX/concept)
+- Proper BTL crew correlation and shooting/crew % correlation
+- Soft ~50pt cap reflecting real producer behavior
+- ~60% existing test pass rate
+- At least one passes-existing-fails-proposed scenario
+- More creative project names
 
 ### Out of Scope
 
@@ -75,4 +87,4 @@ Deployed on Netlify with VITE_APP_PASSWORD environment variable for access contr
 | legacy-peer-deps for @tailwindcss/vite | vite@8 vs vite ^5-7 peer dep; no downgrade needed | ⚠️ Revisit |
 
 ---
-*Last updated: 2026-03-14 after v1.0 milestone*
+*Last updated: 2026-03-14 after v1.1 milestone started*
