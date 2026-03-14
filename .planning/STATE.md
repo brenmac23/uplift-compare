@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Realistic Seed Data
 status: planning
-stopped_at: Completed 06-tiered-field-logic-03-PLAN.md
-last_updated: "2026-03-14T07:57:33.842Z"
+stopped_at: Completed 07-distribution-targets-and-validation-01-PLAN.md
+last_updated: "2026-03-14T09:05:45.314Z"
 last_activity: 2026-03-14 — Roadmap created, 17 requirements mapped across phases 5-7
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 6
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-tiered-field-logic P01 | 2min | 2 tasks | 2 files |
 | Phase 06-tiered-field-logic P02 | 2min | 2 tasks | 2 files |
 | Phase 06-tiered-field-logic P03 | 5min | 2 tasks | 4 files |
+| Phase 07-distribution-targets-and-validation P01 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ All v1.0 decisions archived — see milestones/v1.0-ROADMAP.md for full history.
 - [Phase 06-tiered-field-logic]: C5=0 still consumes rand() #16 and discards it to preserve PRNG offsets for all downstream fields
 - [Phase 06-tiered-field-logic]: Expensive (Section E) selection probability tuned to 0.10 — plan spec was 0.40 but that gave 16 Section E active; max 8 allowed
 - [Phase 06-tiered-field-logic]: B4_C2_COVARIANCE split asymmetrically: highShootingCrewPassProb=0.95 / lowShootingCrewPassProb=0.65 to satisfy both crewPercent>=80 constraint and DIST-04 correlation test
+- [Phase 07-distribution-targets-and-validation]: Maori rand() calls placed after tier3 in generateProject() — shifts PRNG for subsequent projects (expected), 2 calls always consumed via pre-read pattern
+- [Phase 07-distribution-targets-and-validation]: proposedPassed added to generateProject() return for SCEN-01 detection without re-scoring at report time
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T07:54:05.619Z
-Stopped at: Completed 06-tiered-field-logic-03-PLAN.md
+Last session: 2026-03-14T09:05:45.312Z
+Stopped at: Completed 07-distribution-targets-and-validation-01-PLAN.md
 Resume file: None
