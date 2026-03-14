@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { SEED_PROJECTS } from '../seedProjects';
 import { scoreExisting } from '../../scoring';
+import { scoreProposed } from '../../scoring/scoreProposed';
 
 describe('SEED_PROJECTS distribution and realism', () => {
   // ── Count and shape ──────────────────────────────────────────────────────
@@ -77,16 +78,14 @@ describe('SEED_PROJECTS distribution and realism', () => {
     }
   });
 
-  it('all have maoriCrewPercent === 0', () => {
-    for (const p of SEED_PROJECTS) {
-      expect(p.inputs.maoriCrewPercent).toBe(0);
-    }
+  it('at most 3 projects have active Maori crew (maoriCrewPercent >= 10)', () => {
+    const count = SEED_PROJECTS.filter(p => p.inputs.maoriCrewPercent >= 10).length;
+    expect(count).toBeLessThanOrEqual(3);
   });
 
-  it('all have hasLeadCastMaori === false', () => {
-    for (const p of SEED_PROJECTS) {
-      expect(p.inputs.hasLeadCastMaori).toBe(false);
-    }
+  it('at most 3 projects have hasLeadCastMaori === true', () => {
+    const count = SEED_PROJECTS.filter(p => p.inputs.hasLeadCastMaori).length;
+    expect(count).toBeLessThanOrEqual(3);
   });
 
   it('between 3-5 projects have hasStudioLease === true', () => {
@@ -119,6 +118,40 @@ describe('SEED_PROJECTS distribution and realism', () => {
   it('at least 40 projects have crewPercent >= 80', () => {
     const highCrewCount = SEED_PROJECTS.filter((p) => p.inputs.crewPercent >= 80).length;
     expect(highCrewCount).toBeGreaterThanOrEqual(40);
+  });
+
+  // ── Special scenarios (SCEN-01 through SCEN-04) ──────────────────────────
+
+  it('SCEN-01: at least one project passes existing but fails proposed', () => {
+    const count = SEED_PROJECTS.filter(p => {
+      const ex = scoreExisting(p.inputs);
+      const prop = scoreProposed(p.inputs);
+      return ex.passed && !prop.passed;
+    }).length;
+    expect(count).toBeGreaterThanOrEqual(1);
+  });
+
+  it('SCEN-02: at most 3 projects have active Maori criteria', () => {
+    const count = SEED_PROJECTS.filter(p =>
+      p.inputs.maoriCrewPercent >= 10 || p.inputs.hasLeadCastMaori
+    ).length;
+    expect(count).toBeGreaterThanOrEqual(0);
+    expect(count).toBeLessThanOrEqual(3);
+  });
+
+  it('SCEN-03: between 25-35 projects pass scoreExisting', () => {
+    const count = SEED_PROJECTS.filter(p => scoreExisting(p.inputs).passed).length;
+    expect(count).toBeGreaterThanOrEqual(25);
+    expect(count).toBeLessThanOrEqual(35);
+  });
+
+  it('SCEN-04: existing score stddev is between 4 and 12', () => {
+    const scores = SEED_PROJECTS.map(p => scoreExisting(p.inputs).totalPoints);
+    const mean = scores.reduce((s, x) => s + x, 0) / scores.length;
+    const variance = scores.reduce((s, x) => s + (x - mean) ** 2, 0) / scores.length;
+    const stddev = Math.sqrt(variance);
+    expect(stddev).toBeGreaterThanOrEqual(4);
+    expect(stddev).toBeLessThanOrEqual(12);
   });
 
   // ── Distribution correlations (DIST-01 through DIST-05) ──────────────────

@@ -6,13 +6,14 @@
  *   Tier 2 (generateTier2):  cross-field correlations from Tier 1 (17 rand() calls)
  *   Tier 3 (generateTier3):  score-gap greedy point-chasing (23 rand() calls)
  *
- * Total: sampleQnzpe (varies) + 6 + 17 + 23 = 46 + qnzpe rand() calls per project.
+ * Total: sampleQnzpe (varies) + 6 + 17 + 23 + 2 (Maori) = 48 + qnzpe rand() calls per project.
  */
 
 import type { ProductionType, BudgetTierConfig } from './types';
 import type { Project } from '../../src/store/useAppStore';
 import type { ProjectInputs } from '../../src/scoring/types';
 import { scoreExisting } from '../../src/scoring/scoreExisting';
+import { scoreProposed } from '../../src/scoring/scoreProposed';
 import { sampleQnzpe } from './tiers';
 import { generateTier1 } from './tier1';
 import { generateTier2 } from './tier2';
@@ -34,7 +35,7 @@ export function generateProject(
   name: string,
   productionType: ProductionType,
   tierConfig: BudgetTierConfig
-): { project: Project; existingScore: number } {
+): { project: Project; existingScore: number; existingPassed: boolean; proposedPassed: boolean } {
   const qnzpe = sampleQnzpe(tierConfig, rand);
 
   // Tier 1: Fundamentals — budget-correlated base fields
@@ -45,6 +46,14 @@ export function generateProject(
 
   // Tier 3: Point-chasing — score-gap greedy over cheap criteria
   const tier3 = generateTier3(rand, tier1, tier2, tierConfig, qnzpe);
+
+  // Maori activation (SCEN-02): ~2% probability per project
+  // rand() calls: 2 per project, always consumed (pre-read pattern)
+  const maoriActivationRoll = rand();
+  const maoriCrewValueRoll = rand();
+  const maoriActive = maoriActivationRoll < 0.02;
+  const maoriCrewPercent = maoriActive ? (10 + Math.floor(maoriCrewValueRoll * 20)) : 0;
+  const hasLeadCastMaori = maoriActive;
 
   // Assemble ProjectInputs from all three tiers
   const inputs: ProjectInputs = {
@@ -90,12 +99,14 @@ export function generateProject(
     hasNZPremiere: tier3.hasNZPremiere,
     hasIntlPromotion: tier3.hasIntlPromotion,
     hasLocationAnnouncement: tier3.hasLocationAnnouncement,
-    // Fixed (Maori fields — Phase 7 handles the special scenario)
-    maoriCrewPercent: 0,
-    hasLeadCastMaori: false,
+    // Maori activation (SCEN-02): ~2% probability per project
+    // rand() calls: 2 per project, always consumed (pre-read pattern)
+    maoriCrewPercent,
+    hasLeadCastMaori,
   };
 
   const scoringResult = scoreExisting(inputs);
+  const proposedResult = scoreProposed(inputs);
 
   const project: Project = {
     id: `seed-${String(index + 1).padStart(3, '0')}`,
@@ -104,5 +115,10 @@ export function generateProject(
     inputs,
   };
 
-  return { project, existingScore: scoringResult.totalPoints };
+  return {
+    project,
+    existingScore: scoringResult.totalPoints,
+    existingPassed: scoringResult.passed,
+    proposedPassed: proposedResult.passed,
+  };
 }
