@@ -18,7 +18,7 @@ Requirements for Realistic Seed Data milestone. Each maps to roadmap phases.
 
 - [x] **TIER-01**: Tier 1 (Fundamentals) generates A1, B2, B3, B4, C4, C5, C7, C9 based on production nature and budget
 - [x] **TIER-02**: Tier 2 (Less Fundamental) generates B1, B5, B6-B9, C1, C2, C6, C8 with correlations to Tier 1 values
-- [ ] **TIER-03**: Tier 3 (Point-chasing) generates A2/A3, D1-D4, E1-E3, F1-F4 sparsely, guided by score gap to ~40pt target
+- [x] **TIER-03**: Tier 3 (Point-chasing) generates A2/A3, D1-D4, E1-E3, F1-F4 sparsely, guided by score gap to ~40pt target
 
 ### Distribution Realism
 
@@ -66,7 +66,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAME-01 | Phase 5 | Complete |
 | TIER-01 | Phase 6 | Complete |
 | TIER-02 | Phase 6 | Complete |
-| TIER-03 | Phase 6 | Pending |
+| TIER-03 | Phase 6 | Complete |
 | DIST-01 | Phase 6 | Complete |
 | DIST-02 | Phase 6 | Complete |
 | DIST-03 | Phase 6 | Complete |
