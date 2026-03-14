@@ -59,29 +59,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GEN-01 | — | Pending |
-| GEN-02 | — | Pending |
-| GEN-03 | — | Pending |
-| GEN-04 | — | Pending |
-| TIER-01 | — | Pending |
-| TIER-02 | — | Pending |
-| TIER-03 | — | Pending |
-| DIST-01 | — | Pending |
-| DIST-02 | — | Pending |
-| DIST-03 | — | Pending |
-| DIST-04 | — | Pending |
-| DIST-05 | — | Pending |
-| SCEN-01 | — | Pending |
-| SCEN-02 | — | Pending |
-| SCEN-03 | — | Pending |
-| SCEN-04 | — | Pending |
-| NAME-01 | — | Pending |
+| GEN-01 | Phase 5 | Pending |
+| GEN-02 | Phase 5 | Pending |
+| GEN-03 | Phase 5 | Pending |
+| GEN-04 | Phase 5 | Pending |
+| NAME-01 | Phase 5 | Pending |
+| TIER-01 | Phase 6 | Pending |
+| TIER-02 | Phase 6 | Pending |
+| TIER-03 | Phase 6 | Pending |
+| DIST-01 | Phase 6 | Pending |
+| DIST-02 | Phase 6 | Pending |
+| DIST-03 | Phase 6 | Pending |
+| DIST-04 | Phase 6 | Pending |
+| DIST-05 | Phase 6 | Pending |
+| SCEN-01 | Phase 7 | Pending |
+| SCEN-02 | Phase 7 | Pending |
+| SCEN-03 | Phase 7 | Pending |
+| SCEN-04 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after initial definition*
+*Last updated: 2026-03-14 after roadmap creation — traceability complete*
