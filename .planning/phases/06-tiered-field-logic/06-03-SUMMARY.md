@@ -129,6 +129,15 @@ None - no external service configuration required.
 - Phase 7 (Maori scenario) can now layer onto the existing pipeline — the Maori fields (maoriCrewPercent, hasLeadCastMaori) are hardcoded to 0/false and flagged for Phase 7 override
 - The Section-E-heavy profile needed for the "passes-existing-fails-proposed" scenario (Phase 7 blocker) is still outstanding — current generator produces only 3 Section E projects
 
+## Self-Check: PASSED
+
+- scripts/generator/tier3.ts: FOUND
+- scripts/generator/index.ts: FOUND
+- .planning/phases/06-tiered-field-logic/06-03-SUMMARY.md: FOUND
+- Commit d37a437 (Task 1): FOUND
+- Commit 6a100f5 (Task 2): FOUND
+- Commit 7e42259 (docs): FOUND
+
 ---
 *Phase: 06-tiered-field-logic*
 *Completed: 2026-03-14*
