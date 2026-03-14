@@ -69,8 +69,8 @@ export const BTL_CONFIG = {
   } as Record<BudgetTier, number>,
 };
 
-/** Probability weights for ambition targets [40, 41, 42, 43, 44, 45]. */
-export const AMBITION_TARGET_WEIGHTS: number[] = [0.15, 0.15, 0.20, 0.25, 0.15, 0.10];
+/** Probability weights for ambition targets [42, 44, 46, 48, 50, 52, 54, 56]. */
+export const AMBITION_TARGET_WEIGHTS: number[] = [0.05, 0.10, 0.15, 0.25, 0.25, 0.10, 0.05, 0.05];
 
 /** Point-chasing field menu ordered by cost ascending. Tier 3 selects greedily from cheapest. */
 export const TIER3_FIELD_COSTS: Array<{

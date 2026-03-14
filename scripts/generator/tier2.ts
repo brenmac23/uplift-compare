@@ -97,7 +97,7 @@ export function generateTier2(
   tierConfig: BudgetTierConfig,
 ): Tier2Fields {
   // ── rand() #1 — B1: hasStudioLease ─────────────────────────────────────────
-  const hasStudioLease = rand() < 0.10;
+  const hasStudioLease = rand() < 0.15;
 
   // ── rand() #2, #3 — B5: regionalPercent ────────────────────────────────────
   // Always consume 2 rand() calls regardless of which branch is taken.

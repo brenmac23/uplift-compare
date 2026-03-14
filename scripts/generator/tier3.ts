@@ -73,12 +73,12 @@ export type Tier3Fields = {
 /** Probability a producer "bothers" with each cost tier criterion. */
 const SELECTION_PROBS: Record<'cheap' | 'medium' | 'expensive', number> = {
   cheap:     0.85,
-  medium:    0.55,
+  medium:    0.70,
   expensive: 0.10,
 };
 
 /** Ambition target value array — index maps from weightedSelect() result. */
-const AMBITION_VALUES = [40, 41, 42, 43, 44, 45] as const;
+const AMBITION_VALUES = [42, 44, 46, 48, 50, 52, 54, 56] as const;
 
 // ── Generator ─────────────────────────────────────────────────────────────────
 
