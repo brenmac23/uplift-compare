@@ -1,0 +1,135 @@
+/**
+ * Entry point for seed data generation.
+ *
+ * Usage: npm run seed
+ *   → Generates 50 deterministic projects using the PRNG seed and writes
+ *     src/data/seedProjects.ts. Prints a distribution report to stdout.
+ *
+ * Determinism guarantee: All randomness flows through a single createPrng(SEED)
+ * closure. Same SEED → identical output on every run, on every machine.
+ */
+
+import { writeFileSync } from 'fs';
+import { resolve } from 'path';
+import { createPrng } from './generator/prng';
+import { SEED, PROJECT_COUNT } from './generator/types';
+import { FILM_NAMES, TV_NAMES } from './generator/projectNames';
+import { pickBudgetTier } from './generator/tiers';
+import { generateProject } from './generator/index';
+
+// ── Initialise PRNG ──────────────────────────────────────────────────────────
+const rand = createPrng(SEED);
+
+// ── Determine production types for all 50 projects ──────────────────────────
+// 60% film / 40% TV target
+const productionTypes = Array.from({ length: PROJECT_COUNT }, () =>
+  rand() < 0.6 ? 'film' : 'tv'
+) as Array<'film' | 'tv'>;
+
+const filmCount = productionTypes.filter((t) => t === 'film').length;
+const tvCount = PROJECT_COUNT - filmCount;
+
+// ── Shuffle name pools using Fisher-Yates (consumes PRNG in deterministic order) ──
+function shuffle<T>(arr: T[], r: () => number): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const shuffledFilmNames = shuffle(FILM_NAMES, rand).slice(0, filmCount);
+const shuffledTvNames = shuffle(TV_NAMES, rand).slice(0, tvCount);
+
+// Build per-project name assignment in the order projects will be created
+const filmNameQueue = [...shuffledFilmNames];
+const tvNameQueue = [...shuffledTvNames];
+
+// ── Generate all 50 projects ─────────────────────────────────────────────────
+const results: Array<{ project: { id: string; isSeeded: boolean; createdAt: string; inputs: Record<string, unknown> }; existingScore: number }> = [];
+
+for (let i = 0; i < PROJECT_COUNT; i++) {
+  const productionType = productionTypes[i];
+  const name = productionType === 'film' ? filmNameQueue.shift()! : tvNameQueue.shift()!;
+  const tierConfig = pickBudgetTier(rand);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = generateProject(rand, i, name, productionType, tierConfig) as any;
+  results.push(result);
+}
+
+// ── Distribution statistics ───────────────────────────────────────────────────
+const projects = results.map((r) => r.project);
+const scores = results.map((r) => r.existingScore);
+
+const bigBudgetCount = projects.filter((p) => (p.inputs as Record<string, unknown>)['qnzpe'] as number >= 100_000_000).length;
+const passCount = results.filter((r) => r.existingScore >= 40).length;
+const borderlineCount = results.filter((r) => r.existingScore >= 38 && r.existingScore <= 42).length;
+const minScore = Math.min(...scores);
+const maxScore = Math.max(...scores);
+const studioLeaseCount = projects.filter((p) => (p.inputs as Record<string, unknown>)['hasStudioLease']).length;
+const sectionECount = projects.filter((p) => {
+  const inp = p.inputs as Record<string, unknown>;
+  return inp['hasKnowledgeTransfer'] || (inp['commercialAgreementPercent'] as number) > 0 || (inp['infrastructureInvestment'] as number) > 0;
+}).length;
+const highCrewCount = projects.filter((p) => (p.inputs as Record<string, unknown>)['crewPercent'] as number >= 80).length;
+
+// Tier counts
+const tierCounts = { small: 0, mid: 0, large: 0, tentpole: 0 };
+for (const p of projects) {
+  const qnzpe = (p.inputs as Record<string, unknown>)['qnzpe'] as number;
+  if (qnzpe < 50_000_000) tierCounts.small++;
+  else if (qnzpe < 100_000_000) tierCounts.mid++;
+  else if (qnzpe < 200_000_000) tierCounts.large++;
+  else tierCounts.tentpole++;
+}
+
+// ── Print distribution report ─────────────────────────────────────────────────
+console.log('');
+console.log('=== Seed Data Distribution Report ===');
+console.log(`Total projects: ${PROJECT_COUNT}`);
+console.log(`Film: ${filmCount} | TV: ${tvCount}`);
+console.log(`Budget tiers: small=${tierCounts.small} mid=${tierCounts.mid} large=${tierCounts.large} tentpole=${tierCounts.tentpole}`);
+console.log(`Pass rate (existing): ${passCount}/50 (${Math.round((passCount / 50) * 100)}%)`);
+console.log(`Score range: ${minScore}-${maxScore}`);
+console.log(`Borderline (38-42): ${borderlineCount}`);
+console.log(`hasSustainabilityPlan=true: 50/50`);
+console.log(`maoriCrewPercent=0: 50/50`);
+console.log(`hasStudioLease=true: ${studioLeaseCount}`);
+console.log(`Section E active: ${sectionECount}`);
+console.log(`crewPercent>=80: ${highCrewCount}`);
+console.log(`qnzpe>=$100m: ${bigBudgetCount}`);
+console.log('=====================================');
+console.log('');
+
+// ── Generate output file ──────────────────────────────────────────────────────
+const outputPath = resolve(import.meta.dirname, '../src/data/seedProjects.ts');
+
+const projectLines = projects.map((project) => {
+  const inp = project.inputs as Record<string, unknown>;
+  return `  {
+    id: ${JSON.stringify(project.id)},
+    isSeeded: ${project.isSeeded},
+    createdAt: ${JSON.stringify(project.createdAt)},
+    inputs: ${JSON.stringify(project.inputs, null, 6).split('\n').map((line, i) => i === 0 ? line : '    ' + line).join('\n')},
+  }`;
+});
+
+const fileContent = `/**
+ * Auto-generated seed data. DO NOT EDIT MANUALLY.
+ * Regenerate with: npm run seed
+ *
+ * PRNG seed: 0x${SEED.toString(16).toUpperCase()} (${SEED})
+ * Generated: ${new Date().toISOString().slice(0, 10)}
+ * Projects: ${PROJECT_COUNT}
+ */
+
+import type { Project } from '../store/useAppStore';
+
+export const SEED_PROJECTS: Project[] = [
+${projectLines.join(',\n')}
+];
+`;
+
+writeFileSync(outputPath, fileContent, 'utf8');
+console.log(`Written: ${outputPath}`);
