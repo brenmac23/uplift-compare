@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Realistic Seed Data
 status: planning
-stopped_at: Completed 06-tiered-field-logic-01-PLAN.md
-last_updated: "2026-03-14T07:41:52.154Z"
+stopped_at: Completed 06-tiered-field-logic-02-PLAN.md
+last_updated: "2026-03-14T07:45:53.906Z"
 last_activity: 2026-03-14 — Roadmap created, 17 requirements mapped across phases 5-7
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -49,6 +49,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-generator-infrastructure P01 | 5min | 2 tasks | 6 files |
 | Phase 05-generator-infrastructure P02 | 25min | 2 tasks | 3 files |
 | Phase 06-tiered-field-logic P01 | 2min | 2 tasks | 2 files |
+| Phase 06-tiered-field-logic P02 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ All v1.0 decisions archived — see milestones/v1.0-ROADMAP.md for full history.
 - [Phase 06-tiered-field-logic]: Wave 0 test-first: DIST tests written before generation changes to catch regressions during Plans 02/03
 - [Phase 06-tiered-field-logic]: TIER3_FIELD_COSTS ordered cheapest-first for greedy point-chasing algorithm
 - [Phase 06-tiered-field-logic]: Coin-flip + range sampling for bimodal post-production (simpler than two-component Gaussian mixture)
+- [Phase 06-tiered-field-logic]: weightedSelect() exported from tier1.ts to keep import chain linear (tier2 imports tier1, no shared util module)
+- [Phase 06-tiered-field-logic]: Pre-read pattern for 2-call fields ensures deterministic PRNG consumption regardless of branch taken
+- [Phase 06-tiered-field-logic]: C5=0 still consumes rand() #16 and discards it to preserve PRNG offsets for all downstream fields
 
 ### Pending Todos
 
@@ -78,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T07:41:52.152Z
-Stopped at: Completed 06-tiered-field-logic-01-PLAN.md
+Last session: 2026-03-14T07:45:53.904Z
+Stopped at: Completed 06-tiered-field-logic-02-PLAN.md
 Resume file: None
