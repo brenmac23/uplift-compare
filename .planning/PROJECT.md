@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A web application that compares how screen productions score under the existing vs. proposed New Zealand Screen Production Rebate 5% Uplift points tests. Users enter production details and see scores calculated under both systems side by side, with pass/fail verdicts, filtering, and Excel export. Ships with 50 seeded fictional projects and supports creating new ones. Protected by a client-side password gate.
+A web application that compares how screen productions score under the existing vs. proposed New Zealand Screen Production Rebate 5% Uplift points tests. Users enter production details and see scores calculated under both systems side by side, with pass/fail verdicts, filtering, and Excel export. Ships with 50 deterministically generated fictional projects (via a three-tier probabilistic engine) and supports creating new ones. Protected by a client-side password gate.
 
 ## Core Value
 
@@ -28,22 +28,16 @@ Instant, accurate side-by-side comparison of how a production fares under both t
 - ✓ Collapsible/expandable score sections — v1.0
 - ✓ Mandatory criteria (A1 sustainability) visually highlighted — v1.0
 - ✓ Client-side password gate — v1.0
+- ✓ Deterministic seed generator with seeded PRNG (Mulberry32) — v1.1
+- ✓ Three-tier field generation (Fundamentals → Correlations → Point-chasing) — v1.1
+- ✓ Bimodal post-production, budget-inverse talent scoring, shooting/crew covariance — v1.1
+- ✓ Score-gap greedy point-chasing with soft ~50pt cap — v1.1
+- ✓ Special scenarios: passes-existing-fails-proposed, Maori activation, ~60% pass rate — v1.1
+- ✓ 82 creative fictional project names (no real NZ names or franchises) — v1.1
 
 ### Active
 
-## Current Milestone: v1.1 Realistic Seed Data
-
-**Goal:** Regenerate 50 seeded projects with production-realistic logic that follows how a line producer actually works through the uplift test.
-
-**Target features:**
-- Three-tier generation order (Fundamentals → Less Fundamental → Point-chasing)
-- Budget-correlated talent scoring (QNZPE inflection ~$50m)
-- Realistic post-production distributions (bimodal picture/sound, random VFX/concept)
-- Proper BTL crew correlation and shooting/crew % correlation
-- Soft ~50pt cap reflecting real producer behavior
-- ~60% existing test pass rate
-- At least one passes-existing-fails-proposed scenario
-- More creative project names
+(None — next milestone not yet defined)
 
 ### Out of Scope
 
@@ -54,13 +48,16 @@ Instant, accurate side-by-side comparison of how a production fares under both t
 - Actual NZFC submission — this is a comparison/analysis tool only
 - PDF export — Excel is what producers use for analysis
 - Real NZ names or real franchises — legal risk, explicitly forbidden
+- Runtime generation — pre-generate at dev time and commit static file
+- Proposed-test-aware generation — line producers only think about the existing test
 
 ## Context
 
-Shipped v1.0 with 9,420 LOC TypeScript across 134 files.
-Tech stack: React 19, Vite 8, Zustand 5, Tailwind CSS v4, shadcn/ui, SheetJS.
-263 unit tests covering scoring logic, data layer, and export assembly.
+Shipped v1.1 with 10,926 LOC TypeScript across 48 modified files (from v1.0 baseline).
+Tech stack: React 19, Vite 8, Zustand 5, Tailwind CSS v4, shadcn/ui, SheetJS, tsx.
+275 unit tests covering scoring logic, data layer, export assembly, and seed data distribution.
 Deployed on Netlify with VITE_APP_PASSWORD environment variable for access control.
+Seed generator runs via `npm run seed` using tsx — deterministic output from Mulberry32 PRNG.
 
 ## Constraints
 
@@ -85,6 +82,11 @@ Deployed on Netlify with VITE_APP_PASSWORD environment variable for access contr
 | Password gate wraps HashRouter | No routes render while locked; sessionStorage avoids flash | ✓ Good |
 | Scores recomputed from raw inputs | Never stored as source of truth; always derived | ✓ Good |
 | legacy-peer-deps for @tailwindcss/vite | vite@8 vs vite ^5-7 peer dep; no downgrade needed | ⚠️ Revisit |
+| Mulberry32 PRNG with SEED=0xDEADBEEF | Zero-dep factory closure, deterministic sequences, no mutable global state | ✓ Good |
+| Three-tier generation order | Mirrors how a line producer actually works through the uplift test | ✓ Good |
+| Pre-read PRNG pattern | Fixed rand() call count per function regardless of branch — guarantees determinism | ✓ Good |
+| Score-gap greedy algorithm | Tier 3 chases ambition target cheapest-first — produces realistic soft cap | ✓ Good |
+| SCEN-01 fallback override | Post-generation override at index 49 preserves PRNG determinism for other projects | ✓ Good |
 
 ---
-*Last updated: 2026-03-14 after v1.1 milestone started*
+*Last updated: 2026-03-15 after v1.1 milestone completed*
