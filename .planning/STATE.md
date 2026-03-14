@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Realistic Seed Data
 status: planning
-stopped_at: Completed 07-distribution-targets-and-validation-01-PLAN.md
-last_updated: "2026-03-14T09:05:45.314Z"
+stopped_at: Completed 07-distribution-targets-and-validation-02-PLAN.md
+last_updated: "2026-03-14T09:15:17.513Z"
 last_activity: 2026-03-14 — Roadmap created, 17 requirements mapped across phases 5-7
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-tiered-field-logic P02 | 2min | 2 tasks | 2 files |
 | Phase 06-tiered-field-logic P03 | 5min | 2 tasks | 4 files |
 | Phase 07-distribution-targets-and-validation P01 | 3min | 2 tasks | 4 files |
+| Phase 07-distribution-targets-and-validation P02 | 20min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ All v1.0 decisions archived — see milestones/v1.0-ROADMAP.md for full history.
 - [Phase 06-tiered-field-logic]: B4_C2_COVARIANCE split asymmetrically: highShootingCrewPassProb=0.95 / lowShootingCrewPassProb=0.65 to satisfy both crewPercent>=80 constraint and DIST-04 correlation test
 - [Phase 07-distribution-targets-and-validation]: Maori rand() calls placed after tier3 in generateProject() — shifts PRNG for subsequent projects (expected), 2 calls always consumed via pre-read pattern
 - [Phase 07-distribution-targets-and-validation]: proposedPassed added to generateProject() return for SCEN-01 detection without re-scoring at report time
+- [Phase 07-distribution-targets-and-validation]: AMBITION_VALUES extended from [40-45] to [42,44,46,48,50,52,54,56] with Option A (wider range) over Option B (same 6 shifted) for better greedy algorithm headroom
+- [Phase 07-distribution-targets-and-validation]: SCEN-01 fallback override applied post-generation at index 49 using Section-E-heavy tentpole profile (existing=40, proposed=28) — asymmetry from Section E (8pts existing-only) is the differentiating mechanism
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T09:05:45.312Z
-Stopped at: Completed 07-distribution-targets-and-validation-01-PLAN.md
+Last session: 2026-03-14T09:15:17.511Z
+Stopped at: Completed 07-distribution-targets-and-validation-02-PLAN.md
 Resume file: None

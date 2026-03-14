@@ -30,9 +30,9 @@ Requirements for Realistic Seed Data milestone. Each maps to roadmap phases.
 
 ### Special Scenarios
 
-- [ ] **SCEN-01**: At least one project passes the existing test but fails the proposed test
+- [x] **SCEN-01**: At least one project passes the existing test but fails the proposed test
 - [x] **SCEN-02**: Approximately 1-2% of projects (1 out of 50) have active Māori criteria (C3/C10)
-- [ ] **SCEN-03**: Approximately 60% of projects pass the existing test
+- [x] **SCEN-03**: Approximately 60% of projects pass the existing test
 - [x] **SCEN-04**: Projects soft-cap around ~50 points — point-chasing becomes unlikely as score exceeds target
 
 ### Project Names
@@ -72,9 +72,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIST-03 | Phase 6 | Complete |
 | DIST-04 | Phase 6 | Complete |
 | DIST-05 | Phase 6 | Complete |
-| SCEN-01 | Phase 7 | Pending |
+| SCEN-01 | Phase 7 | Complete |
 | SCEN-02 | Phase 7 | Complete |
-| SCEN-03 | Phase 7 | Pending |
+| SCEN-03 | Phase 7 | Complete |
 | SCEN-04 | Phase 7 | Complete |
 
 **Coverage:**

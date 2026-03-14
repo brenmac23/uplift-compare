@@ -23,7 +23,7 @@
 
 - [x] **Phase 5: Generator Infrastructure** — Seeded PRNG, types, correlations table, project names, and entry point that writes a valid seedProjects.ts (completed 2026-03-14)
 - [ ] **Phase 6: Tiered Field Logic** — Three-tier field generation with all cross-field correlations (shooting/crew, BTL, bimodal post-production, budget-talent, VFX independence)
-- [ ] **Phase 7: Distribution Targets and Validation** — Special scenarios, statistical targets, and verification report — output passes all quality gates
+- [x] **Phase 7: Distribution Targets and Validation** — Special scenarios, statistical targets, and verification report — output passes all quality gates (completed 2026-03-14)
 
 ## Phase Details
 
@@ -68,7 +68,7 @@ Plans:
   3. Exactly 1 project has active Maori criteria (maoriCrewPercent >= 10 and hasLeadCastMaori = true)
   4. Project scores cluster softly around 50 points — very few projects exceed 60 without a plausible reason, and the distribution has no artificial cliff
   5. All existing `seedProjects.test.ts` assertions remain green after regeneration
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 07-01-PLAN.md — SCEN test assertions, Maori probabilistic activation, distribution report expansion
 - [ ] 07-02-PLAN.md — Ambition target tuning (SCEN-03/04) and SCEN-01 verification/fallback
@@ -83,4 +83,4 @@ Plans:
 | 4. Export and Polish | v1.0 | 2/2 | Complete | 2026-03-13 |
 | 5. Generator Infrastructure | 2/2 | Complete   | 2026-03-14 | - |
 | 6. Tiered Field Logic | v1.1 | 0/3 | Planning complete | - |
-| 7. Distribution Targets and Validation | 1/2 | In Progress|  | - |
+| 7. Distribution Targets and Validation | 2/2 | Complete   | 2026-03-14 | - |
