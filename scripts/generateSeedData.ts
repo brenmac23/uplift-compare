@@ -47,7 +47,12 @@ const filmNameQueue = [...shuffledFilmNames];
 const tvNameQueue = [...shuffledTvNames];
 
 // ── Generate all 50 projects ─────────────────────────────────────────────────
-const results: Array<{ project: { id: string; isSeeded: boolean; createdAt: string; inputs: Record<string, unknown> }; existingScore: number }> = [];
+const results: Array<{
+  project: { id: string; isSeeded: boolean; createdAt: string; inputs: Record<string, unknown> };
+  existingScore: number;
+  existingPassed: boolean;
+  proposedPassed: boolean;
+}> = [];
 
 for (let i = 0; i < PROJECT_COUNT; i++) {
   const productionType = productionTypes[i];
@@ -74,6 +79,22 @@ const sectionECount = projects.filter((p) => {
 }).length;
 const highCrewCount = projects.filter((p) => (p.inputs as Record<string, unknown>)['crewPercent'] as number >= 80).length;
 
+// Median and stddev
+const sortedScores = [...scores].sort((a, b) => a - b);
+const median = sortedScores.length % 2 === 0
+  ? (sortedScores[sortedScores.length / 2 - 1] + sortedScores[sortedScores.length / 2]) / 2
+  : sortedScores[Math.floor(sortedScores.length / 2)];
+const mean = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+const variance = scores.reduce((sum, s) => sum + (s - mean) ** 2, 0) / scores.length;
+const stddev = Math.sqrt(variance);
+
+// SCEN counters
+const scen01Count = results.filter(r => r.existingPassed && !r.proposedPassed).length;
+const maoriActiveCount = projects.filter(p => {
+  const inp = p.inputs as Record<string, unknown>;
+  return (inp['maoriCrewPercent'] as number) >= 10 || inp['hasLeadCastMaori'] === true;
+}).length;
+
 // Tier counts
 const tierCounts = { small: 0, mid: 0, large: 0, tentpole: 0 };
 for (const p of projects) {
@@ -94,11 +115,19 @@ console.log(`Pass rate (existing): ${passCount}/50 (${Math.round((passCount / 50
 console.log(`Score range: ${minScore}-${maxScore}`);
 console.log(`Borderline (38-42): ${borderlineCount}`);
 console.log(`hasSustainabilityPlan=true: 50/50`);
-console.log(`maoriCrewPercent=0: 50/50`);
+console.log(`Maori active: ${maoriActiveCount}/50`);
 console.log(`hasStudioLease=true: ${studioLeaseCount}`);
 console.log(`Section E active: ${sectionECount}`);
 console.log(`crewPercent>=80: ${highCrewCount}`);
 console.log(`qnzpe>=$100m: ${bigBudgetCount}`);
+console.log(`Median score: ${median}`);
+console.log(`Mean score: ${mean.toFixed(1)}`);
+console.log(`Stddev: ${stddev.toFixed(2)}`);
+console.log(`--- SCEN Scenarios ---`);
+console.log(`SCEN-01 (pass-existing, fail-proposed): ${scen01Count}`);
+console.log(`SCEN-02 (Maori active): ${maoriActiveCount}`);
+console.log(`SCEN-03 (pass existing): ${passCount}/50 (target 28-30)`);
+console.log(`SCEN-04 (stddev 4-12): ${stddev.toFixed(2)}`);
 console.log('=====================================');
 console.log('');
 
