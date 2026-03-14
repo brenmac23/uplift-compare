@@ -52,7 +52,11 @@ Plans:
   3. VFX (B8) and concept/physical effects (B9) vary independently from each other and from B6/B7
   4. Low shooting percent (B4) projects also have low crew percent (C2) — the two fields co-vary
   5. Higher-budget projects (above $50m QNZPE) score lower on qualifying-person criteria (C4, C5, C7, C8, C1) than lower-budget projects
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 06-01-PLAN.md — Distribution tests (Wave 0) and correlations data tables
+- [ ] 06-02-PLAN.md — Tier 1 (fundamentals) and Tier 2 (correlations) field generation
+- [ ] 06-03-PLAN.md — Tier 3 (point-chasing) and generateProject() pipeline refactor
 
 ### Phase 7: Distribution Targets and Validation
 **Goal**: The full 50-project dataset satisfies measurable statistical targets and includes the specific scenario types required to demonstrate the comparison tool's analytical purpose
@@ -75,5 +79,5 @@ Plans:
 | 3. Core UI | v1.0 | 4/4 | Complete | 2026-03-13 |
 | 4. Export and Polish | v1.0 | 2/2 | Complete | 2026-03-13 |
 | 5. Generator Infrastructure | 2/2 | Complete   | 2026-03-14 | - |
-| 6. Tiered Field Logic | v1.1 | 0/? | Not started | - |
+| 6. Tiered Field Logic | v1.1 | 0/3 | Planning complete | - |
 | 7. Distribution Targets and Validation | v1.1 | 0/? | Not started | - |
