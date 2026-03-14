@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A web application that compares how screen productions score under the existing vs. proposed New Zealand Screen Production Rebate 5% Uplift points tests. Users enter production details (budget, personnel, activities) and the app calculates scores under both systems side by side, showing whether each project passes or fails each test. Ships with 50 seeded fictional projects and supports creating new ones.
+A web application that compares how screen productions score under the existing vs. proposed New Zealand Screen Production Rebate 5% Uplift points tests. Users enter production details and see scores calculated under both systems side by side, with pass/fail verdicts, filtering, and Excel export. Ships with 50 seeded fictional projects and supports creating new ones. Protected by a client-side password gate.
 
 ## Core Value
 
@@ -12,59 +12,67 @@ Instant, accurate side-by-side comparison of how a production fares under both t
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Side-by-side scoring engine for existing (85 max, 40 min pass) and proposed (70 max, 20/30 min pass based on QNZPE) uplift tests — v1.0
+- ✓ Input form where users enter raw production data and app calculates points for both systems — v1.0
+- ✓ Shared input fields feed both scoring systems where criteria overlap — v1.0
+- ✓ Project detail screen with dropdown to switch between projects — v1.0
+- ✓ Summary screen with all projects, pass/fail status, filters, and aggregate statistics — v1.0
+- ✓ 50 seeded fictional projects with realistic distribution — v1.0
+- ✓ Users can create new projects and import from JSON — v1.0
+- ✓ Export project data to Excel format (browser-side) — v1.0
+- ✓ Light theme with aesthetic design (Tailwind v4 + shadcn/ui) — v1.0
+- ✓ Deploys on Netlify as static site — v1.0
+- ✓ Data stored in browser localStorage — v1.0
+- ✓ Pass/fail indicators use colour + text (accessible) — v1.0
+- ✓ Criterion tooltips explaining rules in plain English — v1.0
+- ✓ Collapsible/expandable score sections — v1.0
+- ✓ Mandatory criteria (A1 sustainability) visually highlighted — v1.0
+- ✓ Client-side password gate — v1.0
 
 ### Active
 
-- [ ] Side-by-side scoring engine for existing (85 max, 40 min pass) and proposed (70 max, 20/30 min pass based on QNZPE) uplift tests
-- [ ] Input form where users enter raw production data (percentages, dollar amounts, personnel counts) and the app calculates points for both systems
-- [ ] Minimum required input fields — shared inputs feed both scoring systems where criteria overlap
-- [ ] Project detail screen with dropdown to switch between projects
-- [ ] Summary screen showing all projects with descriptions and pass/fail status for each test
-- [ ] 50 seeded fictional projects (mix of films and TV, fake titles only, no NZ references or real franchises)
-- [ ] Seed data distribution: half pass existing test, half fail; half over $100m QNZPE, all over $20m QNZPE
-- [ ] Seed data realism: all have A1 (existing), none have C3/C10 (existing), B1 rare, big budget = low qualifying persons, Section E rare and for big budgets, most projects reach 80% on C2 especially smaller ones
-- [ ] Users can create new projects
-- [ ] Export project data to Excel format
-- [ ] Light theme with aesthetic, tidy design (using frontend design plugin)
-- [ ] Deploys on Netlify (static site, no backend)
-- [ ] Data stored in browser localStorage
+(None — define with `/gsd:new-milestone`)
 
 ### Out of Scope
 
 - Backend/database — static site with localStorage only
-- User authentication — no login needed
+- User authentication — password gate is sufficient
 - Multi-user collaboration — single-browser usage
 - Mobile-native app — web only (responsive is fine)
 - Actual NZFC submission — this is a comparison/analysis tool only
+- PDF export — Excel is what producers use for analysis
+- Real NZ names or real franchises — legal risk, explicitly forbidden
 
 ## Context
 
-The New Zealand Film Commission (NZFC) administers a 5% Uplift on the Screen Production Rebate. Productions must pass a points test to qualify. The government is proposing changes to this points test. This tool helps stakeholders understand how the rule changes would affect different types of productions.
-
-**Existing test:** 85 max points, 40 minimum to pass (must include mandatory 3 points from Section A1 sustainability). Sections: A (Sustainability, 7pts), B (NZ Production Activity, 21pts), C (NZ Personnel, 31pts), D (Skills & Talent Development, 6pts), E (Innovation & Infrastructure, 8pts), F (Marketing & Showcasing NZ, 12pts).
-
-**Proposed test:** 70 max points, 20 minimum to pass for QNZPE up to $100m, 30 minimum for QNZPE $100m+. No mandatory sustainability section. Sections restructured: A (NZ Production Activity, 20pts), B (NZ Personnel, 32pts), C (Skills & Talent Development, 6pts), D (Marketing & Showcasing NZ, 12pts).
-
-Key differences: sustainability section removed as mandatory, thresholds changed for several criteria (e.g. VFX from 50/75/90% to 30/50/75%), tiered pass mark based on budget, associated content window extended from 3 to 5 years, cast threshold lowered (60%/80% tiers vs 80% only), crew points increased, new location announcement criterion, premiere restructured.
-
-Both source documents (Existing and Proposed) are .docx files in the project root.
+Shipped v1.0 with 9,420 LOC TypeScript across 134 files.
+Tech stack: React 19, Vite 8, Zustand 5, Tailwind CSS v4, shadcn/ui, SheetJS.
+263 unit tests covering scoring logic, data layer, and export assembly.
+Deployed on Netlify with VITE_APP_PASSWORD environment variable for access control.
 
 ## Constraints
 
-- **Tech stack**: React + Vite — modern SPA for Netlify deployment
+- **Tech stack**: React 19 + Vite 8 + TypeScript
 - **Hosting**: Netlify — static files only, no server-side processing
-- **Data persistence**: Browser localStorage — no backend database
-- **Design**: Light theme, clean aesthetic using frontend design plugin
+- **Data persistence**: Browser localStorage with Zustand persist middleware
+- **Design**: Light theme using Tailwind CSS v4 + shadcn/ui
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| React + Vite | Modern tooling, fast builds, strong ecosystem for forms/tables | — Pending |
-| Browser localStorage | No backend needed for Netlify static deploy | — Pending |
-| Raw data input with auto-calculation | More realistic scoring — users enter percentages/amounts, app calculates points | — Pending |
-| Side-by-side comparison view | Best for direct visual comparison of two scoring systems | — Pending |
+| React + Vite | Modern tooling, fast builds, strong ecosystem for forms/tables | ✓ Good |
+| Browser localStorage | No backend needed for Netlify static deploy | ✓ Good |
+| Raw data input with auto-calculation | More realistic scoring — users enter percentages/amounts, app calculates points | ✓ Good |
+| Side-by-side comparison view | Best for direct visual comparison of two scoring systems | ✓ Good |
+| Engine-first build order | Scoring correctness validated before any UI work begins | ✓ Good |
+| Zustand 5 with persist middleware | No manual localStorage wiring, schema migration support built in | ✓ Good |
+| HashRouter (not BrowserRouter) | Works on Netlify without redirect config | ✓ Good |
+| SheetJS from CDN tarball | npm registry version unavailable; frozen at 0.18.5 | ✓ Good |
+| QNZPE stored as whole NZD dollars | Readable comparisons (100_000_000 for $100m) | ✓ Good |
+| Password gate wraps HashRouter | No routes render while locked; sessionStorage avoids flash | ✓ Good |
+| Scores recomputed from raw inputs | Never stored as source of truth; always derived | ✓ Good |
+| legacy-peer-deps for @tailwindcss/vite | vite@8 vs vite ^5-7 peer dep; no downgrade needed | ⚠️ Revisit |
 
 ---
-*Last updated: 2026-03-13 after initialization*
+*Last updated: 2026-03-14 after v1.0 milestone*

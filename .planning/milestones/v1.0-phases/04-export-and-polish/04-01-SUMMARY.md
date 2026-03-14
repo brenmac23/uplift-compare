@@ -78,7 +78,7 @@ Each task was committed atomically:
 1. **Task 1: Install SheetJS and create exportXlsx with tests** - `e084a61` (feat)
 2. **Task 2: Create ExportButton and wire into NavBar** - `a37a0a8` (feat)
 
-**Plan metadata:** (docs commit follows)
+**Plan metadata:** `4bb0441` (docs: complete plan)
 
 ## Files Created/Modified
 - `src/lib/exportXlsx.ts` - Pure export functions: buildHeaders, buildRow, buildFilename, exportXlsx
