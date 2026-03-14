@@ -16,6 +16,9 @@ import { SEED, PROJECT_COUNT } from './generator/types';
 import { FILM_NAMES, TV_NAMES } from './generator/projectNames';
 import { pickBudgetTier } from './generator/tiers';
 import { generateProject } from './generator/index';
+import { scoreExisting } from '../src/scoring/scoreExisting';
+import { scoreProposed } from '../src/scoring/scoreProposed';
+import type { ProjectInputs } from '../src/scoring/types';
 
 // ── Initialise PRNG ──────────────────────────────────────────────────────────
 const rand = createPrng(SEED);
@@ -61,6 +64,91 @@ for (let i = 0; i < PROJECT_COUNT; i++) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = generateProject(rand, i, name, productionType, tierConfig) as any;
   results.push(result);
+}
+
+// ── SCEN-01 fallback override ─────────────────────────────────────────────────
+// If no project naturally passes existing but fails proposed, override the last
+// project (index 49) with a Section-E-heavy tentpole profile designed to achieve
+// exactly this scenario. All rand() calls have been consumed before this point,
+// so PRNG determinism for all other projects is preserved.
+//
+// Designed profile: existing = 40 (A1+B1+B2+B6+B7+C5+C6+C7+C8+C9+D1+E) = 40
+// Proposed threshold: 30 (qnzpe >= $100m). Proposed score = 28 < 30 → FAILS.
+{
+  const naturalScen01 = results.filter(r => r.existingPassed && !r.proposedPassed).length;
+  if (naturalScen01 === 0) {
+    const overrideIndex = PROJECT_COUNT - 1; // last project (index 49)
+    const overrideInputs: ProjectInputs = {
+      projectName: results[overrideIndex].project.inputs['projectName'] as string,
+      productionType: 'film',
+      qnzpe: 220_000_000, // tentpole: >= $100m for proposed threshold 30
+      // Section A: sustainability (existing A1=3pts mandatory)
+      hasSustainabilityPlan: true,
+      // Section B: production activity
+      hasPreviousQNZPE: true,            // existing B2=2pts, proposed A1=2pts
+      hasAssociatedContent: false,
+      shootingNZPercent: 80,             // existing B4=1pt (>=75), proposed A3=1pt
+      // Section E (existing only): 8pts total — the key asymmetry
+      hasKnowledgeTransfer: true,        // existing E1=2pts (no proposed equivalent)
+      commercialAgreementPercent: 1,     // existing E2=3pts (no proposed equivalent)
+      infrastructureInvestment: 2_000_000, // existing E3=3pts (no proposed equivalent)
+      // Tier 2: post-production gives same pts to both systems
+      hasStudioLease: true,              // existing B1=2pts (no proposed equivalent)
+      regionalPercent: 0,
+      picturePostPercent: 80,            // existing B6=3pts, proposed A5=3pts
+      soundPostPercent: 80,              // existing B7=3pts, proposed A6=3pts
+      vfxPercent: 20,
+      conceptPhysicalPercent: 20,
+      castPercent: 65,                   // <80: existing C1=0, proposed B1=2pts
+      crewPercent: 65,                   // <80: existing C2=0, proposed B2=0
+      btlKeyCount: 4,                    // existing C5=4pts, proposed B4=4pts
+      btlAdditionalCount: 8,             // existing C6=4pts (capped), proposed B5=4pts (capped)
+      hasLeadCast: true,                 // existing C7=3pts, proposed B6=4pts
+      supportingCastCount: 3,            // existing C8=3pts, proposed B7=3pts
+      castingLevel: 'director',          // existing C9=2pts, proposed B8=2pts
+      atlCount: 0,                       // existing C4=0, proposed B3=0
+      // Tier 3: skills — minimal to keep proposed score low
+      hasSustainabilityOfficer: false,
+      hasCarbonReview: false,
+      hasMasterclass: true,              // existing D1=2pts (no proposed equivalent)
+      hasEdSeminars: false,
+      attachmentCount: 0,
+      internshipCount: 0,
+      // Tier 3: marketing — none (keeps proposed D score at 0)
+      premiereType: 'none',
+      hasFilmMarketing: false,
+      hasTourismMarketing: false,
+      hasTourismPartnership: false,
+      // Proposed-only fields — false (keeps proposed C/D scores low)
+      hasIndustrySeminars: false,
+      hasNZPremiere: false,
+      hasIntlPromotion: false,
+      hasLocationAnnouncement: false,
+      // Maori: none
+      maoriCrewPercent: 0,
+      hasLeadCastMaori: false,
+    };
+
+    const overrideExisting = scoreExisting(overrideInputs);
+    const overrideProposed = scoreProposed(overrideInputs);
+
+    // Verify the override achieves SCEN-01 before applying
+    if (overrideExisting.passed && !overrideProposed.passed) {
+      results[overrideIndex] = {
+        project: {
+          ...results[overrideIndex].project,
+          inputs: overrideInputs as unknown as Record<string, unknown>,
+        },
+        existingScore: overrideExisting.totalPoints,
+        existingPassed: overrideExisting.passed,
+        proposedPassed: overrideProposed.passed,
+      };
+      console.log(`SCEN-01 override applied to project ${overrideIndex + 1}: existing=${overrideExisting.totalPoints}, proposed=${overrideProposed.totalPoints}`);
+    } else {
+      console.warn(`SCEN-01 override profile check: existing=${overrideExisting.totalPoints} (passed=${overrideExisting.passed}), proposed=${overrideProposed.totalPoints} (passed=${overrideProposed.passed})`);
+      console.warn('Override did NOT achieve SCEN-01 — profile needs adjustment');
+    }
+  }
 }
 
 // ── Distribution statistics ───────────────────────────────────────────────────
